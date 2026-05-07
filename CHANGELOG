@@ -1,0 +1,10 @@
+Changelog
+
+0.1.1
+
+- renamed to TabJump and updated description in manifest
+- reduced slots from 0-9 to 1-9 to avoid using the Linux/Mac `Ctrl+0` shortcut
+- allow opening of popup into a tab
+- fix popup styling
+- added mock browser for local popup development
+- updated icon

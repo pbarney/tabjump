@@ -4,6 +4,7 @@
   --border: color-mix(in srgb, CanvasText 18%, transparent);
   --muted: color-mix(in srgb, CanvasText 62%, transparent);
   --accent: Highlight;
+  --text: #212529;
 }
 
 * {
@@ -18,6 +19,7 @@ body {
   font: menu;
   background: Canvas;
   color: CanvasText;
+  color: var(--text);
 }
 
 header {
@@ -26,12 +28,19 @@ header {
   justify-content: space-between;
   gap: var(--gap);
   margin-bottom: 10px;
+
+  div {
+    display: flex;
+    gap: .5rem;
+    align-content: end;
+
+    h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+  }
 }
 
-h1 {
-  font-size: 16px;
-  margin: 0;
-}
 
 button {
   font: inherit;
@@ -41,78 +50,83 @@ button {
   background: ButtonFace;
   color: ButtonText;
   cursor: pointer;
-}
 
-button:hover {
-  border-color: color-mix(in srgb, CanvasText 38%, transparent);
+  &:hover {
+    background-color: color-mix(in srgb, ButtonFace 75%, transparent)
+  }
+
+  &:active {
+    border-color: color-mix(in srgb, CanvasText 38%, transparent);
+    background-color: color-mix(in srgb, ButtonFace 80%, black)
+  }
+
+  &:disabled {
+    border-color: transparent;
+    background-color: color-mix(in srgb, ButtonFace 90%, black)
+  }
 }
 
 .slots {
   display: grid;
   gap: 6px;
-}
 
-.slot {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 42px 1fr auto auto;
-  align-items: center;
-  gap: 6px;
-  min-height: 42px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px;
-}
+  .slot {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: 42px 1fr auto auto;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
 
-.slot-badge {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  font-weight: 700;
-  background: color-mix(in srgb, Highlight 18%, transparent);
-}
+    &.empty {
+      min-width: 0;
+    }
 
+    .slot-badge {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: color-mix(in srgb, Highlight 18%, transparent);
+    }
 
-.slot-details {
-  min-width: 0;
-}
+    .slot-details {
+      min-width: 0;
 
-.slot-title {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+      .slot-title {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: var(--text);
+        font-weight: 600;
+      }
 
-.slot-url {
-  margin-top: 2px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.slot.empty 
-.slot-details {
-  min-width: 0;
-}
-
-.slot-title {
-  color: var(--muted);
-  font-style: italic;
+      .slot-url {
+        margin-top: 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: var(--muted);
+        font-size: 11px;
+      }
+    }
+  }
 }
 
 .actions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
-}
 
-.actions button {
-  flex: 1;
+  button {
+    flex: 1;
+  }
 }
 
 .status {
