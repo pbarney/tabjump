@@ -1,6 +1,6 @@
 /*
- * Tab Hotkeys & Shortcuts
- * v0.1.0 development build
+ * TabJump
+ * v0.1.1 development build
  *
  * v1 scope:
  * - Global slots only.
@@ -9,7 +9,7 @@
  * - Optional Tree Style Tab badges through TST's Extra Tab Contents API.
  */
 
-const SLOT_COUNT = 10;
+const SLOT_IDS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 const TST_ID = "treestyletab@piro.sakura.ne.jp";
 const TST_BADGE_PLACE = "tab-front";
 
@@ -20,13 +20,14 @@ const DEFAULT_OPTIONS = Object.freeze({
   showActionBadgeFeedback: true
 });
 
+// the first element of each array is ignored so the indexes align with the slot numbers
 const BADGE_STYLES = Object.freeze({
   circled: ["⓪", "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"],
   negativeCircled: ["⓿", "❶", "❷", "❸", "❹", "❺", "❻", "❼", "❽", "❾"],
   dingbatCircled: ["⓪", "➀", "➁", "➂", "➃", "➄", "➅", "➆", "➇", "➈"],
   dingbatNegative: ["⓿", "➊", "➋", "➌", "➍", "➎", "➏", "➐", "➑", "➒"],
-  letters: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
-  circledLetters: ["Ⓐ", "Ⓑ", "Ⓒ", "Ⓓ", "Ⓔ", "Ⓕ", "Ⓖ", "Ⓗ", "Ⓘ", "Ⓙ"]
+  letters: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I"],
+  circledLetters: ["", "Ⓐ", "Ⓑ", "Ⓒ", "Ⓓ", "Ⓔ", "Ⓕ", "Ⓖ", "Ⓗ", "Ⓘ"]
 });
 
 let badgeTimer = null;
@@ -70,7 +71,7 @@ function slotFromCommand(command, prefix) {
 }
 
 function isValidSlot(slot) {
-  return Number.isInteger(slot) && slot >= 0 && slot < SLOT_COUNT;
+  return Number.isInteger(slot) && SLOT_IDS.includes(slot);
 }
 
 function escapeHtml(value) {
@@ -402,7 +403,7 @@ async function rebuildContextMenus() {
     contexts: ["tab"]
   });
 
-  for (let slot = 0; slot < SLOT_COUNT; slot++) {
+  for (const slot of SLOT_IDS) {
     browser.menus.create({
       id: `assign-slot-${slot}`,
       parentId: "assign-root",

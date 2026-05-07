@@ -58,6 +58,10 @@ document.getElementById("manage-shortcuts").addEventListener("click", async () =
   await send("open-shortcut-settings");
 });
 
+document.getElementById("open-popup-tab").addEventListener("click", async () => {
+  await browser.tabs.create({ url: browser.runtime.getURL("popup.html?dev=tab") });
+});
+
 document.getElementById("refresh-badges").addEventListener("click", async () => {
   await send("refresh-tst-badges");
   setStatus("TST badges refreshed.");

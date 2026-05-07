@@ -12,6 +12,7 @@
 
 body {
   width: 380px;
+  overflow-x: hidden;
   margin: 0;
   padding: 12px;
   font: menu;
@@ -53,6 +54,7 @@ button:hover {
 
 .slot {
   display: grid;
+  min-width: 0;
   grid-template-columns: 42px 1fr auto auto;
   align-items: center;
   gap: 6px;
@@ -73,6 +75,11 @@ button:hover {
   background: color-mix(in srgb, Highlight 18%, transparent);
 }
 
+
+.slot-details {
+  min-width: 0;
+}
+
 .slot-title {
   overflow: hidden;
   white-space: nowrap;
@@ -88,7 +95,12 @@ button:hover {
   font-size: 11px;
 }
 
-.slot.empty .slot-title {
+.slot.empty 
+.slot-details {
+  min-width: 0;
+}
+
+.slot-title {
   color: var(--muted);
   font-style: italic;
 }

@@ -4,7 +4,7 @@
 
 Potential behavior:
 
-- Each window gets its own Slot 0-9 map.
+- Each window gets its own Slot 1-9 map.
 - When a tab moves to another window, the moved tab keeps its slot assignment.
 - If the target window already has that slot assigned, the moved tab takes over the slot and the previous target-window tab is unassigned.
 - Notification text: `Slot 3 reassigned to moved tab.`

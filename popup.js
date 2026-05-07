@@ -1,12 +1,12 @@
-const SLOT_COUNT = 10;
+const SLOT_IDS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 const BADGE_STYLES = {
   circled: ["⓪", "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"],
   negativeCircled: ["⓿", "❶", "❷", "❸", "❹", "❺", "❻", "❼", "❽", "❾"],
   dingbatCircled: ["⓪", "➀", "➁", "➂", "➃", "➄", "➅", "➆", "➇", "➈"],
   dingbatNegative: ["⓿", "➊", "➋", "➌", "➍", "➎", "➏", "➐", "➑", "➒"],
-  letters: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
-  circledLetters: ["Ⓐ", "Ⓑ", "Ⓒ", "Ⓓ", "Ⓔ", "Ⓕ", "Ⓖ", "Ⓗ", "Ⓘ", "Ⓙ"]
+  letters: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I"],
+  circledLetters: ["", "Ⓐ", "Ⓑ", "Ⓒ", "Ⓓ", "Ⓔ", "Ⓕ", "Ⓖ", "Ⓗ", "Ⓘ"]
 };
 
 let state = null;
@@ -43,7 +43,7 @@ function renderSlots() {
   const container = document.getElementById("slots");
   container.textContent = "";
 
-  for (let slot = 0; slot < SLOT_COUNT; slot++) {
+  for (const slot of SLOT_IDS) {
     const entry = state.slots[String(slot)];
     const row = document.createElement("div");
     row.className = `slot${entry ? "" : " empty"}`;

@@ -1,22 +1,22 @@
-# Tab Hotkeys & Shortcuts
+# TabJump: Shortcuts for Open Tabs
 
-Development v0.1.0.
+Development v0.1.1.
 
-Assign numbered keyboard shortcuts to open tabs and jump to them instantly. Tree Style Tab users can also show compact Jump Slot badges in the TST sidebar.
+Assign temporary jump keys to open tabs so you can quickly move between them while you work. Tree Style Tab users can also show compact Jump Slot badges in the TST sidebar.
 
 ## v1 scope
 
 Implemented:
 
-- Global Jump Slots `0` through `9`
+- Global Jump Slots `1` through `9`
 - Jump commands:
-  - Windows/default: `Alt+0` through `Alt+9`
-  - Linux: `Ctrl+0` through `Ctrl+9`
-  - macOS: `MacCtrl+0` through `MacCtrl+9`
+  - Windows/default: `Alt+1` through `Alt+9`
+  - Linux: `Ctrl+1` through `Ctrl+9`
+  - macOS: `MacCtrl+1` through `MacCtrl+9`
 - Assignment commands:
-  - Windows/default: `Alt+Shift+0` through `Alt+Shift+9`
-  - Linux: `Ctrl+Shift+0` through `Ctrl+Shift+9`
-  - macOS: `MacCtrl+Shift+0` through `MacCtrl+Shift+9`
+  - Windows/default: `Alt+Shift+1` through `Alt+Shift+9`
+  - Linux: `Ctrl+Shift+1` through `Ctrl+Shift+9`
+  - macOS: `MacCtrl+Shift+1` through `MacCtrl+Shift+9`
 - Toolbar popup fallback
 - Tab context-menu fallback
 - Options page with:
@@ -50,3 +50,10 @@ Not implemented in v1:
 Firefox controls final shortcut assignment. Some shortcut defaults may be unavailable if Firefox, the OS/window manager, or another add-on has already taken them.
 
 Tree Style Tab integration is optional. If TST is not installed or its sidebar is not visible, the extension still works through commands, the toolbar popup, and tab context menus.
+
+
+## Popup development
+
+For real extension state, open the options page and click **Open Popup as Tab**. This opens `popup.html` as a normal extension tab, so it does not disappear when DevTools focus changes.
+
+For pure CSS/layout mocking outside the extension runtime, open `popup-dev.html` directly. It loads `mock-browser.js`, which provides mock slot data including long URLs.
