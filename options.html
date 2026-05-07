@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tab Hotkeys & Shortcuts Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>Tab Hotkeys & Shortcuts</h1>
+
+    <section>
+      <h2>Slot Scope</h2>
+      <label>
+        <input type="radio" name="slot-scope" value="global" checked>
+        Global across all windows
+      </label>
+      <label class="disabled">
+        <input type="radio" name="slot-scope" value="per-window" disabled>
+        Per-window slots (roadmap)
+      </label>
+    </section>
+
+    <section>
+      <h2>Shortcuts</h2>
+      <p>Firefox manages the actual keyboard shortcuts for this extension.</p>
+      <button id="manage-shortcuts" type="button">Manage Extension Shortcuts</button>
+    </section>
+
+    <section>
+      <h2>Tree Style Tab Badges</h2>
+      <label>
+        <input id="show-tst-badges" type="checkbox">
+        Show Jump Slot badges in Tree Style Tab
+      </label>
+
+      <label for="badge-style">Badge style</label>
+      <select id="badge-style">
+        <option value="circled">⓪ ① ② ③</option>
+        <option value="negativeCircled">⓿ ❶ ❷ ❸</option>
+        <option value="dingbatCircled">⓪ ➀ ➁ ➂</option>
+        <option value="dingbatNegative">⓿ ➊ ➋ ➌</option>
+        <option value="letters">A B C D</option>
+        <option value="circledLetters">Ⓐ Ⓑ Ⓒ Ⓓ</option>
+      </select>
+
+      <button id="refresh-badges" type="button">Refresh TST Badges</button>
+    </section>
+
+    <section>
+      <h2>Feedback</h2>
+      <label>
+        <input id="show-action-badge-feedback" type="checkbox">
+        Briefly show assignment feedback on the toolbar icon
+      </label>
+    </section>
+
+    <section>
+      <h2>Data</h2>
+      <button id="clear-all" type="button">Clear All Jump Slots</button>
+    </section>
+
+    <p id="status" role="status"></p>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+{
+  "manifest_version": 2,
+  "name": "Tab Hotkeys & Shortcuts",
+  "version": "0.1.0",
+  "description": "Assign numbered keyboard shortcuts to open tabs and jump to them instantly. Includes optional Tree Style Tab badges.",
+  "homepage_url": "https://example.invalid/tab-hotkeys-shortcuts",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "menus"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    },
+    "default_title": "Tab Hotkeys & Shortcuts",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "browser_style": true
+  },
+  "commands": {
+    "jump-slot-0": {
+      "suggested_key": {
+        "default": "Alt+0",
+        "windows": "Alt+0",
+        "linux": "Ctrl+0",
+        "mac": "MacCtrl+0"
+      },
+      "description": "Jump to tab in slot 0"
+    },
+    "jump-slot-1": {
+      "suggested_key": {
+        "default": "Alt+1",
+        "windows": "Alt+1",
+        "linux": "Ctrl+1",
+        "mac": "MacCtrl+1"
+      },
+      "description": "Jump to tab in slot 1"
+    },
+    "jump-slot-2": {
+      "suggested_key": {
+        "default": "Alt+2",
+        "windows": "Alt+2",
+        "linux": "Ctrl+2",
+        "mac": "MacCtrl+2"
+      },
+      "description": "Jump to tab in slot 2"
+    },
+    "jump-slot-3": {
+      "suggested_key": {
+        "default": "Alt+3",
+        "windows": "Alt+3",
+        "linux": "Ctrl+3",
+        "mac": "MacCtrl+3"
+      },
+      "description": "Jump to tab in slot 3"
+    },
+    "jump-slot-4": {
+      "suggested_key": {
+        "default": "Alt+4",
+        "windows": "Alt+4",
+        "linux": "Ctrl+4",
+        "mac": "MacCtrl+4"
+      },
+      "description": "Jump to tab in slot 4"
+    },
+    "jump-slot-5": {
+      "suggested_key": {
+        "default": "Alt+5",
+        "windows": "Alt+5",
+        "linux": "Ctrl+5",
+        "mac": "MacCtrl+5"
+      },
+      "description": "Jump to tab in slot 5"
+    },
+    "jump-slot-6": {
+      "suggested_key": {
+        "default": "Alt+6",
+        "windows": "Alt+6",
+        "linux": "Ctrl+6",
+        "mac": "MacCtrl+6"
+      },
+      "description": "Jump to tab in slot 6"
+    },
+    "jump-slot-7": {
+      "suggested_key": {
+        "default": "Alt+7",
+        "windows": "Alt+7",
+        "linux": "Ctrl+7",
+        "mac": "MacCtrl+7"
+      },
+      "description": "Jump to tab in slot 7"
+    },
+    "jump-slot-8": {
+      "suggested_key": {
+        "default": "Alt+8",
+        "windows": "Alt+8",
+        "linux": "Ctrl+8",
+        "mac": "MacCtrl+8"
+      },
+      "description": "Jump to tab in slot 8"
+    },
+    "jump-slot-9": {
+      "suggested_key": {
+        "default": "Alt+9",
+        "windows": "Alt+9",
+        "linux": "Ctrl+9",
+        "mac": "MacCtrl+9"
+      },
+      "description": "Jump to tab in slot 9"
+    },
+    "assign-slot-0": {
+      "suggested_key": {
+        "default": "Alt+Shift+0",
+        "windows": "Alt+Shift+0",
+        "linux": "Ctrl+Shift+0",
+        "mac": "MacCtrl+Shift+0"
+      },
+      "description": "Assign current tab to slot 0"
+    },
+    "assign-slot-1": {
+      "suggested_key": {
+        "default": "Alt+Shift+1",
+        "windows": "Alt+Shift+1",
+        "linux": "Ctrl+Shift+1",
+        "mac": "MacCtrl+Shift+1"
+      },
+      "description": "Assign current tab to slot 1"
+    },
+    "assign-slot-2": {
+      "suggested_key": {
+        "default": "Alt+Shift+2",
+        "windows": "Alt+Shift+2",
+        "linux": "Ctrl+Shift+2",
+        "mac": "MacCtrl+Shift+2"
+      },
+      "description": "Assign current tab to slot 2"
+    },
+    "assign-slot-3": {
+      "suggested_key": {
+        "default": "Alt+Shift+3",
+        "windows": "Alt+Shift+3",
+        "linux": "Ctrl+Shift+3",
+        "mac": "MacCtrl+Shift+3"
+      },
+      "description": "Assign current tab to slot 3"
+    },
+    "assign-slot-4": {
+      "suggested_key": {
+        "default": "Alt+Shift+4",
+        "windows": "Alt+Shift+4",
+        "linux": "Ctrl+Shift+4",
+        "mac": "MacCtrl+Shift+4"
+      },
+      "description": "Assign current tab to slot 4"
+    },
+    "assign-slot-5": {
+      "suggested_key": {
+        "default": "Alt+Shift+5",
+        "windows": "Alt+Shift+5",
+        "linux": "Ctrl+Shift+5",
+        "mac": "MacCtrl+Shift+5"
+      },
+      "description": "Assign current tab to slot 5"
+    },
+    "assign-slot-6": {
+      "suggested_key": {
+        "default": "Alt+Shift+6",
+        "windows": "Alt+Shift+6",
+        "linux": "Ctrl+Shift+6",
+        "mac": "MacCtrl+Shift+6"
+      },
+      "description": "Assign current tab to slot 6"
+    },
+    "assign-slot-7": {
+      "suggested_key": {
+        "default": "Alt+Shift+7",
+        "windows": "Alt+Shift+7",
+        "linux": "Ctrl+Shift+7",
+        "mac": "MacCtrl+Shift+7"
+      },
+      "description": "Assign current tab to slot 7"
+    },
+    "assign-slot-8": {
+      "suggested_key": {
+        "default": "Alt+Shift+8",
+        "windows": "Alt+Shift+8",
+        "linux": "Ctrl+Shift+8",
+        "mac": "MacCtrl+Shift+8"
+      },
+      "description": "Assign current tab to slot 8"
+    },
+    "assign-slot-9": {
+      "suggested_key": {
+        "default": "Alt+Shift+9",
+        "windows": "Alt+Shift+9",
+        "linux": "Ctrl+Shift+9",
+        "mac": "MacCtrl+Shift+9"
+      },
+      "description": "Assign current tab to slot 9"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tab-hotkeys-shortcuts@example.local",
+      "strict_min_version": "115.0"
+    }
+  }
+}

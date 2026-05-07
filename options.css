@@ -1,0 +1,72 @@
+:root {
+  color-scheme: light dark;
+  --border: color-mix(in srgb, CanvasText 18%, transparent);
+  --muted: color-mix(in srgb, CanvasText 62%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 720px;
+  margin: 0;
+  padding: 20px;
+  font: menu;
+  background: Canvas;
+  color: CanvasText;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0 0 18px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
+section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  margin: 8px 0;
+}
+
+label.disabled {
+  color: var(--muted);
+}
+
+button,
+select {
+  font: inherit;
+  margin-top: 6px;
+}
+
+button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: ButtonFace;
+  color: ButtonText;
+}
+
+select {
+  display: block;
+  min-width: 220px;
+  padding: 4px;
+}
+
+p {
+  color: var(--muted);
+}
+
+#status {
+  min-height: 1.4em;
+}

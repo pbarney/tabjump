@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tab Hotkeys & Shortcuts</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Jump Slots</h1>
+    <button id="open-options" type="button" title="Open options">Options</button>
+  </header>
+
+  <main>
+    <div id="slots" class="slots" aria-live="polite"></div>
+
+    <div class="actions">
+      <button id="unassign-current" type="button">Unassign Current Tab</button>
+      <button id="clear-all" type="button">Clear All</button>
+    </div>
+
+    <p id="status" class="status" role="status"></p>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
