@@ -25,3 +25,12 @@ Potential advanced compatibility feature:
 - Content script modifies `document.title` with a slot marker.
 - `MutationObserver` reapplies the marker if the page changes the title.
 - Requires host/page permissions and can affect history/bookmarks/window titles, so this should remain optional.
+
+
+## Badge labels based on assigned shortcuts
+
+Potential advanced option:
+
+- TST badges currently show slot numbers `1` through `9`.
+- A future version may display the primary assigned key instead, if the user reconfigures slots away from number-row shortcuts.
+- This requires shortcut parsing and a decision about which part of a compound shortcut is badge-worthy.

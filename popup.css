@@ -1,14 +1,81 @@
 :root {
   color-scheme: light dark;
-  --gap: 8px;
+
   --border: color-mix(in srgb, CanvasText 18%, transparent);
   --muted: color-mix(in srgb, CanvasText 62%, transparent);
   --accent: Highlight;
+
+  --headerText: #064fd8;
   --text: #212529;
+  
+  --kbd-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  --kbd-bg-color: #f7f7f7;
+  --kbd-color: #222325;
+  --kbd-border: #a0a0a0;
+  --kbd-border-accent: #707070;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --headerText: #8ab4ff;
+    --text: #f1f3f5;
+
+    --kbd-bg-color: #2b2d31;
+    --kbd-color: #f1f1f1;
+    --kbd-border: #6c7078;
+    --kbd-border-accent: #9aa0aa;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --border: CanvasText;
+    --muted: GrayText;
+    --accent: Highlight;
+
+    --headerText: CanvasText;
+    --text: CanvasText;
+
+    --kbd-bg-color: ButtonFace;
+    --kbd-color: ButtonText;
+    --kbd-border: ButtonText;
+    --kbd-border-accent: ButtonText;
+  }
+}
+
+@media (forced-colors: active) {
+  button {
+    border-color: ButtonText;
+  }
+
+  button:disabled {
+    color: GrayText;
+    border-color: GrayText;
+    background: ButtonFace;
+  }
+
+  button:hover {
+    outline: 1px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .slots .slot .slot-badge {
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .help-view .shortcut-warning {
+    border-color: Highlight;
+    background: Canvas;
+  }
 }
 
 * {
   box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -22,25 +89,32 @@ body {
   color: var(--text);
 }
 
+h1, h2, h3 {
+  color: var(--headerText);
+}
+
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--gap);
-  margin-bottom: 10px;
+  margin-bottom: .625rem;
 
-  div {
+  .popup-title {
     display: flex;
     gap: .5rem;
-    align-content: end;
+    align-items: center;
 
     h1 {
       font-size: 1.25rem;
       margin: 0;
     }
   }
-}
 
+  .header-actions {
+    display: flex;
+    gap: .35rem;
+  }
+}
 
 button {
   font: inherit;
@@ -52,17 +126,18 @@ button {
   cursor: pointer;
 
   &:hover {
-    background-color: color-mix(in srgb, ButtonFace 75%, transparent)
+    background-color: color-mix(in srgb, ButtonFace 75%, transparent);
   }
 
   &:active {
     border-color: color-mix(in srgb, CanvasText 38%, transparent);
-    background-color: color-mix(in srgb, ButtonFace 80%, black)
+    background-color: color-mix(in srgb, ButtonFace 80%, black);
   }
 
   &:disabled {
     border-color: transparent;
-    background-color: color-mix(in srgb, ButtonFace 90%, black)
+    background-color: color-mix(in srgb, ButtonFace 90%, black);
+    cursor: default;
   }
 }
 
@@ -83,6 +158,12 @@ button {
 
     &.empty {
       min-width: 0;
+      
+      .slot-details {
+        .slot-title {
+          color: var(--muted);
+        }
+      }
     }
 
     .slot-badge {
@@ -126,6 +207,96 @@ button {
 
   button {
     flex: 1;
+  }
+}
+
+.help-view {
+  font-size: .9rem;
+
+  h2, h3 {
+    margin-block: 1em .75em;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  h3 {
+    font-size: .9rem;
+    text-decoration: underline;
+  }
+
+  p {
+    margin: .4rem 0;
+  }
+
+  ul {
+    margin: .35rem 0;
+    padding-inline-start: 1.2rem;
+  }
+
+  li {
+    margin: .25rem 0;
+  }
+  
+  strong {
+    font-weight: 600;
+  }
+
+  .platform-note {
+    color: var(--muted);
+  }
+
+  .shortcut {
+    white-space: nowrap;
+    font-weight: 600;
+
+    kbd {
+      display: inline-block;
+      box-sizing: border-box;
+
+      margin-block: .0625em .1875em;
+      margin-inline: .1em;
+      padding-block: .12em .16em;
+      padding-inline: .42em;
+      min-inline-size: 1.5em;
+      min-block-size: 1.55em;
+
+      font-family: var(--kbd-font);
+      font-size: .9em;
+      font-weight: 500;
+      line-height: 1.1;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+
+      color: var(--kbd-color);
+      background-color: var(--kbd-bg-color);
+
+      border: 1px solid var(--kbd-border);
+      border-inline-end: 2px solid var(--kbd-border-accent);
+      border-block-end: 2px solid var(--kbd-border-accent);
+      border-radius: .25em;
+    }
+  }
+
+  .shortcut-warning {
+    padding: .45rem .55rem;
+    border: 1px solid color-mix(in srgb, Highlight 42%, transparent);
+    border-radius: .375em;
+    background: color-mix(in srgb, Highlight 12%, transparent);
+  }
+
+  .help-actions {
+    display: flex;
+    gap: .5rem;
+    margin-top: .8rem;
+
+    button {
+      font-size: revert;
+      /* flex: 0; */
+    }
   }
 }
 

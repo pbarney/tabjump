@@ -8,3 +8,17 @@ Changelog
 - fix popup styling
 - added mock browser for local popup development
 - updated icon
+
+0.1.2
+
+- background.js now owns the popup view model.
+- popup.js no longer duplicates BADGE_STYLES background.js is the source of that data
+- popup.js now renders state.slotViews instead of calculating slot IDs, badge styles, or command names itself.
+- popup receives display-ready badge text and shortcut labels from background.js
+- popup receives shortened display URLs, with full URLs preserved as tooltips
+- fixed the accidental CSS selector issue where all slot titles were being muted/italicized
+- added viewport meta tags to popup/options/mock pages
+
+0.1.3
+- Removed configurable badge styles
+- Added a roadmap note for possible future “show assigned key” badge behavior

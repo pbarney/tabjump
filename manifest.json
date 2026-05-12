@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "TabJump: Shortcuts for Open Tabs",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "Assign temporary jump keys to open tabs so you can quickly move between them while you work.",
   "homepage_url": "https://github.com/pbarney/tabjump",
   "icons": {
@@ -196,6 +196,15 @@
         "mac": "MacCtrl+Shift+9"
       },
       "description": "Assign current tab to slot 9"
+    },
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+J",
+        "windows": "Alt+J",
+        "linux": "Alt+J",
+        "mac": "MacCtrl+J"
+      },
+      "description": "Open TabJump"
     }
   },
   "browser_specific_settings": {

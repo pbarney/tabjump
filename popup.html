@@ -8,20 +8,59 @@
 </head>
 <body>
   <header>
-    <div>
+    <div class="popup-title">
       <img src="icons/icon-32.png" alt="" width="32" height="32">
       <h1>Jump Slots</h1>
     </div>
-    <button id="open-options" type="button" title="Open options">Options</button>
+    <div class="header-actions">
+      <button id="open-help" type="button" title="Open help (H)">Help</button>
+      <button id="open-options" type="button" title="Open options (O)">Options</button>
+    </div>
   </header>
 
   <main>
+    <section id="slots-view">
     <div id="slots" class="slots" aria-live="polite"></div>
 
     <div class="actions">
       <button id="unassign-current" type="button">Unassign Current Tab</button>
       <button id="clear-all" type="button">Clear All</button>
     </div>
+    </section>
+
+    <section id="help-view" class="help-view" hidden>
+      <h2>TabJump Help</h2>
+
+      <p>TabJump gives you temporary jump slots for tabs you are using right now.</p>
+
+      <h3>Use the popup</h3>
+      <p>The <span id="shortcut-open"></span> key will open the popup.</p>
+      <ul>
+        <li><strong>Jump</strong> switches to the tab assigned to that slot.</li>
+        <li><strong>Assign</strong> assigns the current tab to that slot.</li>
+        <li><strong>Clear All</strong> removes all current assignments.</li>
+      </ul>
+
+      <h3>Default shortcuts</h3>
+      <ul>
+        <li><strong>Jump to a slot:</strong> <span id="shortcut-jump"></span></li>
+        <li><strong>Assign current tab:</strong> <span id="shortcut-assign"></span></li>
+      </ul>
+
+      <p id="shortcut-warning" class="shortcut-warning" hidden>
+        Your Firefox shortcut settings appear to differ from these defaults.
+      </p>
+
+      <h3>Notes</h3>
+      <ul>
+        <li>Assignments are temporary. Closed tabs lose their slots.</li>
+        <li>Tree Style Tab users can enable slot badges in Options.</li>
+      </ul>
+
+      <div class="help-actions">
+        <button id="manage-shortcuts-help" type="button">Manage Extension Shortcuts</button>
+      </div>
+    </section>
 
     <p id="status" class="status" role="status"></p>
   </main>

@@ -21,7 +21,6 @@ function readOptionsFromForm() {
   return {
     slotScope: document.querySelector('input[name="slot-scope"]:checked')?.value || "global",
     showTstBadges: document.getElementById("show-tst-badges").checked,
-    badgeStyle: document.getElementById("badge-style").value,
     showActionBadgeFeedback: document.getElementById("show-action-badge-feedback").checked
   };
 }
@@ -36,7 +35,6 @@ function hydrateForm() {
   const options = state.options;
   document.querySelector('input[name="slot-scope"][value="global"]').checked = true;
   document.getElementById("show-tst-badges").checked = Boolean(options.showTstBadges);
-  document.getElementById("badge-style").value = options.badgeStyle || "circled";
   document.getElementById("show-action-badge-feedback").checked = Boolean(options.showActionBadgeFeedback);
 }
 
@@ -45,7 +43,7 @@ async function load() {
   hydrateForm();
 }
 
-for (const id of ["show-tst-badges", "badge-style", "show-action-badge-feedback"]) {
+for (const id of ["show-tst-badges", "show-action-badge-feedback"]) {
   document.getElementById(id).addEventListener("change", () => {
     saveOptions().catch(error => {
       console.error(error);
@@ -60,11 +58,6 @@ document.getElementById("manage-shortcuts").addEventListener("click", async () =
 
 document.getElementById("open-popup-tab").addEventListener("click", async () => {
   await browser.tabs.create({ url: browser.runtime.getURL("popup.html?dev=tab") });
-});
-
-document.getElementById("refresh-badges").addEventListener("click", async () => {
-  await send("refresh-tst-badges");
-  setStatus("TST badges refreshed.");
 });
 
 document.getElementById("clear-all").addEventListener("click", async () => {

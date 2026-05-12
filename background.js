@@ -1,6 +1,6 @@
 /*
  * TabJump
- * v0.1.1 development build
+ * v0.1.5 development build
  *
  * v1 scope:
  * - Global slots only.
@@ -16,18 +16,7 @@ const TST_BADGE_PLACE = "tab-front";
 const DEFAULT_OPTIONS = Object.freeze({
   slotScope: "global",
   showTstBadges: true,
-  badgeStyle: "circled",
   showActionBadgeFeedback: true
-});
-
-// the first element of each array is ignored so the indexes align with the slot numbers
-const BADGE_STYLES = Object.freeze({
-  circled: ["⓪", "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"],
-  negativeCircled: ["⓿", "❶", "❷", "❸", "❹", "❺", "❻", "❼", "❽", "❾"],
-  dingbatCircled: ["⓪", "➀", "➁", "➂", "➃", "➄", "➅", "➆", "➇", "➈"],
-  dingbatNegative: ["⓿", "➊", "➋", "➌", "➍", "➎", "➏", "➐", "➑", "➒"],
-  letters: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I"],
-  circledLetters: ["", "Ⓐ", "Ⓑ", "Ⓒ", "Ⓓ", "Ⓔ", "Ⓕ", "Ⓖ", "Ⓗ", "Ⓘ"]
 });
 
 let badgeTimer = null;
@@ -82,9 +71,148 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function badgeForSlot(slot, options) {
-  const style = BADGE_STYLES[options.badgeStyle] || BADGE_STYLES.circled;
-  return style[slot] || String(slot);
+function badgeForSlot(slot) {
+  return String(slot);
+}
+
+function shortcutForCommand(commands, commandName) {
+  const command = commands.find(item => item.name === commandName);
+  return command?.shortcut || "";
+}
+
+function shortenUrlForDisplay(url) {
+  if (!url)
+    return "";
+
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname === "/" ? "" : parsed.pathname;
+    return `${parsed.hostname}${path}`;
+  } catch (_) {
+    return url;
+  }
+}
+
+function buildSlotView(slot, entry, options, commands) {
+  const jumpShortcut = shortcutForCommand(commands, `jump-slot-${slot}`);
+  const assignShortcut = shortcutForCommand(commands, `assign-slot-${slot}`);
+  const badge = badgeForSlot(slot);
+
+  if (!entry) {
+    return {
+      slot,
+      assigned: false,
+      badge,
+      badgeTitle: `Jump Slot ${slot}`,
+      title: `Slot ${slot} is empty`,
+      fullTitle: "",
+      subtitle: [
+        jumpShortcut ? `Jump: ${jumpShortcut}` : "Jump shortcut unset",
+        assignShortcut ? `Assign: ${assignShortcut}` : "assign shortcut unset"
+      ].join(" · "),
+      fullUrl: "",
+      jumpShortcut,
+      assignShortcut
+    };
+  }
+
+  return {
+    slot,
+    assigned: true,
+    badge,
+    badgeTitle: `Jump Slot ${slot}`,
+    title: entry.title || entry.url || `Tab ${entry.tabId}`,
+    fullTitle: entry.title || "",
+    subtitle: shortenUrlForDisplay(entry.url),
+    fullUrl: entry.url || "",
+    jumpShortcut,
+    assignShortcut,
+    tabId: entry.tabId,
+    windowId: entry.windowId,
+    pinned: Boolean(entry.pinned),
+    incognito: Boolean(entry.incognito)
+  };
+}
+
+function buildPopupState(slots, options, commands, platformOs) {
+  return {
+    slots,
+    options,
+    commands,
+    slotViews: SLOT_IDS.map(slot => buildSlotView(slot, slots[String(slot)], options, commands)),
+    shortcutHelp: buildShortcutHelp(platformOs),
+    shortcutDefaults: buildShortcutDefaults(platformOs)
+  };
+}
+
+async function getPlatformOs() {
+  try {
+    const info = await browser.runtime.getPlatformInfo();
+    return info.os;
+  } catch (_) {
+    return "unknown";
+  }
+}
+
+function shortcutProfileForPlatform(platformOs) {
+  if (platformOs === "linux") {
+    return {
+      openDisplay: "Alt+J",
+      openExpected: "Alt+J",
+      jumpDisplayModifier: "Ctrl",
+      jumpExpectedModifier: "Ctrl",
+      assignDisplayModifier: "Ctrl+Shift",
+      assignExpectedModifier: "Ctrl+Shift"
+    };
+  }
+
+  if (platformOs === "mac") {
+    return {
+      openDisplay: "Control+J",
+      openExpected: "MacCtrl+J",
+      jumpDisplayModifier: "Control",
+      jumpExpectedModifier: "MacCtrl",
+      assignDisplayModifier: "Control+Shift",
+      assignExpectedModifier: "MacCtrl+Shift"
+    };
+  }
+
+  return {
+    openDisplay: "Alt+J",
+    openExpected: "Alt+J",
+    jumpDisplayModifier: "Alt",
+    jumpExpectedModifier: "Alt",
+    assignDisplayModifier: "Alt+Shift",
+    assignExpectedModifier: "Alt+Shift"
+  };
+}
+
+function shortcutRange(modifier, firstSlot, lastSlot) {
+  return `${modifier}+${firstSlot} through ${modifier}+${lastSlot}`;
+}
+
+function buildShortcutHelp(platformOs) {
+  const profile = shortcutProfileForPlatform(platformOs);
+
+  return {
+    open: profile.openDisplay,
+    jump: shortcutRange(profile.jumpDisplayModifier, 1, 9),
+    assign: shortcutRange(profile.assignDisplayModifier, 1, 9)
+  };
+}
+
+function buildShortcutDefaults(platformOs) {
+  const profile = shortcutProfileForPlatform(platformOs);
+  const defaults = {
+    "_execute_browser_action": profile.openExpected
+  };
+
+  for (const slot of SLOT_IDS) {
+    defaults[`jump-slot-${slot}`] = `${profile.jumpExpectedModifier}+${slot}`;
+    defaults[`assign-slot-${slot}`] = `${profile.assignExpectedModifier}+${slot}`;
+  }
+
+  return defaults;
 }
 
 async function flashBrowserActionBadge(text) {
@@ -291,18 +419,14 @@ async function registerToTst() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          min-width: 1.35em;
-          height: 1.35em;
+          width: 1rem;
+          min-width: 1rem;
+          height: 1rem;
           margin-inline-end: 0.25em;
           border-radius: 999px;
-          font-size: 0.9em;
-          font-weight: 700;
-          line-height: 1;
-          color: ButtonText;
-          background: color-mix(in srgb, Highlight 18%, transparent);
-        }
-        tab-item.active ::part(%EXTRA_CONTENTS_PART% tab-hotkey-slot-badge) {
-          background: color-mix(in srgb, Highlight 32%, transparent);
+          font: 700 0.9em/1 system-ui, sans-serif;
+          background: Highlight;
+          color: HighlightText;
         }
       `
     });
@@ -317,7 +441,7 @@ async function setTstBadgeForTab(tabId, slot) {
   if (!options.showTstBadges)
     return;
 
-  const badge = escapeHtml(badgeForSlot(slot, options));
+  const badge = escapeHtml(badgeForSlot(slot));
   const title = escapeHtml(`Jump Slot ${slot}`);
 
   try {
@@ -382,6 +506,13 @@ async function refreshTstBadgesForTabs(tabIds = null) {
 }
 
 async function refreshAllTstBadges() {
+  const options = await getOptions();
+
+  if (!options.showTstBadges) {
+    await clearAllTstBadges();
+    return;
+  }
+
   const registered = await registerToTst();
   if (!registered)
     return;
@@ -516,12 +647,10 @@ browser.runtime.onMessage.addListener((message) => {
 
   switch (message.type) {
     case "get-state":
-      return Promise.all([getSlots(), getOptions(), getCommands()]).then(([slots, options, commands]) => ({
-        slots,
-        options,
-        commands,
-        badgeStyles: Object.keys(BADGE_STYLES)
-      }));
+      return Promise.all([getSlots(), getOptions(), getCommands(), getPlatformOs()]).then(
+        ([slots, options, commands, platformOs]) =>
+          buildPopupState(slots, options, commands, platformOs)
+      );
 
     case "assign-slot":
       return getActiveTab().then(tab => assignSlot(message.slot, tab));
@@ -544,6 +673,7 @@ browser.runtime.onMessage.addListener((message) => {
     case "open-shortcut-settings":
       return openShortcutSettings();
 
+    // for development/testing
     case "refresh-tst-badges":
       return refreshAllTstBadges();
 
