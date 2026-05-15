@@ -22,11 +22,6 @@ function setStatus(message) {
   }, 2200);
 }
 
-function getCommandShortcut(commands, commandName) {
-  const command = commands.find(item => item.name === commandName);
-  return command?.shortcut || "";
-}
-
 function shortcutsDifferFromDefaults(commands, shortcutDefaults) {
   return Object.entries(shortcutDefaults || {}).some(([commandName, expectedShortcut]) => {
     const command = commands.find(item => item.name === commandName);
@@ -70,6 +65,36 @@ function renderShortcut(elementId, shortcutText) {
   }
 }
 
+function eventTargetAcceptsText(event) {
+  const target = event.target;
+
+  if (!(target instanceof HTMLElement))
+    return false;
+
+  return target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    target.isContentEditable;
+}
+
+async function jumpToSlot(slot, closePopup = false) {
+  const ok = await send("jump-slot", { slot });
+
+  if (!ok) {
+    setStatus(`Slot ${slot} is empty.`);
+    await load();
+    return;
+  }
+
+  if (closePopup) {
+    window.close();
+    return;
+  }
+
+  setStatus(`Jumped to Slot ${slot}.`);
+  await load();
+}
+
 function renderSlots() {
   const container = document.getElementById("slots");
   container.textContent = "";
@@ -78,10 +103,19 @@ function renderSlots() {
     const row = document.createElement("div");
     row.className = `slot${slotView.assigned ? "" : " empty"}`;
 
-    const badge = document.createElement("div");
-    badge.className = "slot-badge";
-    badge.textContent = slotView.badge;
-    badge.title = slotView.badgeTitle;
+    const jump = document.createElement("button");
+    jump.type = "button";
+    jump.className = "slot-badge";
+    jump.textContent = slotView.badge;
+    jump.disabled = !slotView.assigned;
+    jump.title = slotView.assigned
+      ? `Jump to Slot ${slotView.slot}`
+      : `Slot ${slotView.slot} is empty`;
+    jump.setAttribute("aria-label", jump.title);
+
+    jump.addEventListener("click", async () => {
+      await jumpToSlot(slotView.slot, false);
+    });
 
     const details = document.createElement("div");
     details.className = "slot-details";
@@ -100,26 +134,27 @@ function renderSlots() {
 
     details.append(title, subtitle);
 
-    const jump = document.createElement("button");
-    jump.type = "button";
-    jump.textContent = "Jump";
-    jump.disabled = !slotView.assigned;
-    jump.addEventListener("click", async () => {
-      const ok = await send("jump-slot", { slot: slotView.slot });
-      setStatus(ok ? `Jumped to Slot ${slotView.slot}.` : `Slot ${slotView.slot} is empty.`);
-      await load();
-    });
-
     const assign = document.createElement("button");
     assign.type = "button";
-    assign.textContent = "Assign";
+    assign.textContent = slotView.assigned ? "Unassign" : "Assign";
+    assign.title = slotView.assigned
+      ? `Unassign Slot ${slotView.slot}`
+      : `Assign current tab to Slot ${slotView.slot}`;
+    assign.setAttribute("aria-label", assign.title);
+
     assign.addEventListener("click", async () => {
-      await send("assign-slot", { slot: slotView.slot });
-      setStatus(`Assigned current tab to Slot ${slotView.slot}.`);
+      if (slotView.assigned) {
+        await send("unassign-slot", { slot: slotView.slot });
+        setStatus(`Slot ${slotView.slot} unassigned.`);
+      } else {
+        await send("assign-slot", { slot: slotView.slot });
+        setStatus(`Assigned current tab to Slot ${slotView.slot}.`);
+      }
+
       await load();
     });
 
-    row.append(badge, details, jump, assign);
+    row.append(jump, details, assign);
     container.append(row);
   }
 }
@@ -128,6 +163,7 @@ function renderHelp() {
   renderShortcut("shortcut-open", state.shortcutHelp.open);
   renderShortcut("shortcut-jump", state.shortcutHelp.jump);
   renderShortcut("shortcut-assign", state.shortcutHelp.assign);
+  renderShortcut("shortcut-unassign", state.shortcutHelp.unassign);
 
   const warning = document.getElementById("shortcut-warning");
   warning.hidden = !shortcutsDifferFromDefaults(state.commands || [], state.shortcutDefaults || {});
@@ -158,20 +194,30 @@ function showHelpView() {
   setStatus("");
 }
 
-function eventTargetAcceptsText(event) {
-  const target = event.target;
-
-  return target instanceof HTMLInputElement ||
-    target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLSelectElement ||
-    target.isContentEditable;
-}
-
 async function load() {
   state = await send("get-state");
   renderSlots();
   renderHelp();
 }
+
+document.addEventListener("keydown", async event => {
+  if (helpIsOpen)
+    return;
+
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+    return;
+
+  if (eventTargetAcceptsText(event))
+    return;
+
+  if (!/^[1-9]$/.test(event.key))
+    return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  await jumpToSlot(Number(event.key), true);
+});
 
 openHelpButton.addEventListener("click", () => {
   if (helpIsOpen) {

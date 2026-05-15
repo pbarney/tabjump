@@ -197,7 +197,8 @@ function buildShortcutHelp(platformOs) {
   return {
     open: profile.openDisplay,
     jump: shortcutRange(profile.jumpDisplayModifier, 1, 9),
-    assign: shortcutRange(profile.assignDisplayModifier, 1, 9)
+    assign: shortcutRange(profile.assignDisplayModifier, 1, 9),
+    unassign: `${profile.assignDisplayModifier}+0`
   };
 }
 
@@ -211,6 +212,8 @@ function buildShortcutDefaults(platformOs) {
     defaults[`jump-slot-${slot}`] = `${profile.jumpExpectedModifier}+${slot}`;
     defaults[`assign-slot-${slot}`] = `${profile.assignExpectedModifier}+${slot}`;
   }
+
+  defaults["unassign-current-tab"] = `${profile.assignExpectedModifier}+0`;
 
   return defaults;
 }
@@ -562,6 +565,15 @@ async function rebuildContextMenus() {
 
 browser.commands.onCommand.addListener(async command => {
   try {
+    if (command === "unassign-current-tab") {
+      const tab = await getActiveTab();
+
+      if (tab)
+        await unassignTab(tab.id);
+
+      return;
+    }
+
     let slot = slotFromCommand(command, "jump-slot");
     if (slot !== null) {
       await jumpSlot(slot);

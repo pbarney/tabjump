@@ -9,14 +9,6 @@ Potential behavior:
 - If the target window already has that slot assigned, the moved tab takes over the slot and the previous target-window tab is unassigned.
 - Notification text: `Slot 3 reassigned to moved tab.`
 
-## Multi-key chord assignment
-
-Potential behavior:
-
-- A global "assignment prefix" command begins a short-lived assignment mode.
-- The next digit assigns the current tab to that slot.
-- This likely requires an extension page/popup/sidebar focus model or a page-level capture mode, so it is not included in v1.
-
 ## Non-TST title marker mode
 
 Potential advanced compatibility feature:
@@ -34,3 +26,17 @@ Potential advanced option:
 - TST badges currently show slot numbers `1` through `9`.
 - A future version may display the primary assigned key instead, if the user reconfigures slots away from number-row shortcuts.
 - This requires shortcut parsing and a decision about which part of a compound shortcut is badge-worthy.
+
+## Future / possible companion add-on:
+
+TST-only feature to move the current tab, or current tab tree, under the tab assigned to a selected TabJump slot.
+Possible shortcut family: Ctrl+Alt+1-9.
+Likely better as a separate add-on for users who use both Tree Style Tab and TabJump.
+
+
+
+v0.1.6:
+  Slot badge becomes the jump button in the popup.
+  Allow "assign" button to switch to "unassign" when populated.
+  Allow keyboard 1-9 to do a jump (if assigned) and close the popup.
+  Allow a keyboard shortcut to unassign the current tab. ((Ctrl/Alt/MacCtrl)+Shift+0 is available on all platforms)

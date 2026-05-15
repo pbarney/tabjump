@@ -1,0 +1,102 @@
+:root {
+  color-scheme: light dark;
+
+  --border: color-mix(in srgb, CanvasText 18%, transparent);
+  --muted: color-mix(in srgb, CanvasText 62%, transparent);
+  --accent: Highlight;
+
+  --headerText: #064fd8;
+  --text: #212529;
+  
+  --kbd-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  --kbd-bg-color: #f7f7f7;
+  --kbd-color: #222325;
+  --kbd-border: #a0a0a0;
+  --kbd-border-accent: #707070;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --headerText: #8ab4ff;
+    --text: #f1f3f5;
+
+    --kbd-bg-color: #2b2d31;
+    --kbd-color: #f1f1f1;
+    --kbd-border: #6c7078;
+    --kbd-border-accent: #9aa0aa;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --border: CanvasText;
+    --muted: GrayText;
+    --accent: Highlight;
+
+    --headerText: CanvasText;
+    --text: CanvasText;
+
+    --kbd-bg-color: ButtonFace;
+    --kbd-color: ButtonText;
+    --kbd-border: ButtonText;
+    --kbd-border-accent: ButtonText;
+  }
+}
+
+@media (forced-colors: active) {
+  button {
+    border-color: ButtonText;
+  }
+
+  button:disabled {
+    color: GrayText;
+    border-color: GrayText;
+    background: ButtonFace;
+  }
+
+  button:hover {
+    outline: 1px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  font: menu;
+  background: Canvas;
+  /* color: CanvasText; */
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: ButtonFace;
+  color: ButtonText;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-mix(in srgb, ButtonFace 75%, transparent);
+  }
+
+  &:active {
+    border-color: color-mix(in srgb, CanvasText 38%, transparent);
+    background-color: color-mix(in srgb, ButtonFace 80%, black);
+  }
+
+  &:disabled {
+    border-color: transparent;
+    background-color: color-mix(in srgb, ButtonFace 90%, black);
+    cursor: default;
+  }
+}

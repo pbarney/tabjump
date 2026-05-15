@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TabJump</title>
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -38,6 +39,7 @@
       <ul>
         <li><strong>Jump</strong> switches to the tab assigned to that slot.</li>
         <li><strong>Assign</strong> assigns the current tab to that slot.</li>
+        <li><strong>1-9 keys</strong> jump to the matching assigned slot and close the popup.</li>
         <li><strong>Clear All</strong> removes all current assignments.</li>
       </ul>
 
@@ -45,6 +47,7 @@
       <ul>
         <li><strong>Jump to a slot:</strong> <span id="shortcut-jump"></span></li>
         <li><strong>Assign current tab:</strong> <span id="shortcut-assign"></span></li>
+        <li><strong>Unassign current tab:</strong> <span id="shortcut-unassign"></span></li>
       </ul>
 
       <p id="shortcut-warning" class="shortcut-warning" hidden>

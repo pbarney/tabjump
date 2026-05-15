@@ -92,3 +92,18 @@ For real extension state, open the options page and click **Open Popup as Tab**.
 - Shortcut key combinations in help are wrapped to prevent awkward line breaks.
 - Documented Firefox attached-popup dark-mode behavior.
 - Removed `popup-dev.html` and `mock-browser.js` from the documented development workflow.
+
+## v0.1.6 changes
+
+- Transparent-background icon.
+- Removed `popup-dev.html` and `mock-browser.js`.
+- Slot number badge in the popup now acts as the Jump button.
+- Popup Assign button now becomes Unassign when a slot is already assigned.
+- Popup digit keys `1` through `9` jump to the assigned slot and close the popup.
+- Added keyboard command for unassigning the current tab:
+  - Windows/default: `Alt+Shift+0`
+  - Linux: `Ctrl+Shift+0`
+  - macOS: `MacCtrl+Shift+0`
+- Renamed toolbar badge feedback option to “Briefly flash tab assignments on the TabJump toolbar icon.”
+- Removed multi-key chord assignment from the roadmap.
+
