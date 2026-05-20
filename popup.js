@@ -1,6 +1,10 @@
 let state = null;
 let statusTimer = null;
 let helpIsOpen = false;
+let shortcutMode = null;
+let shortcutModeTimer = null;
+
+const SHORTCUT_MODE_TIMEOUT_MS = 3000;
 
 const openHelpButton = document.getElementById("open-help");
 const slotsView = document.getElementById("slots-view");
@@ -20,6 +24,37 @@ function setStatus(message) {
   statusTimer = setTimeout(() => {
     el.textContent = "";
   }, 2200);
+}
+
+function clearShortcutMode(message = "") {
+  shortcutMode = null;
+
+  if (shortcutModeTimer) {
+    clearTimeout(shortcutModeTimer);
+    shortcutModeTimer = null;
+  }
+
+  if (message)
+    setStatus(message);
+}
+
+function setShortcutMode(mode) {
+  shortcutMode = mode;
+
+  if (shortcutModeTimer)
+    clearTimeout(shortcutModeTimer);
+
+  if (mode === "assign") {
+    setStatus("Assign mode: press 1-9.");
+  } else if (mode === "unassign") {
+    setStatus("Unassign mode: press 1-9, or 0 for current tab.");
+  }
+
+  shortcutModeTimer = setTimeout(() => {
+    shortcutMode = null;
+    shortcutModeTimer = null;
+    setStatus("");
+  }, SHORTCUT_MODE_TIMEOUT_MS);
 }
 
 function shortcutsDifferFromDefaults(commands, shortcutDefaults) {
@@ -55,12 +90,17 @@ function renderShortcut(elementId, shortcutText) {
   const element = document.getElementById(elementId);
   element.textContent = "";
 
-  const [firstCombo, secondCombo] = shortcutText.split(" through ");
+  if (!shortcutText.includes("+")) {
+    element.textContent = shortcutText;
+    return;
+  }
+
+  const [firstCombo, secondCombo] = shortcutText.split(" to ");
 
   appendShortcutCombo(element, firstCombo);
 
   if (secondCombo) {
-    element.append(document.createTextNode(" through "));
+    element.append(document.createTextNode(" to "));
     appendShortcutCombo(element, secondCombo);
   }
 }
@@ -68,13 +108,12 @@ function renderShortcut(elementId, shortcutText) {
 function eventTargetAcceptsText(event) {
   const target = event.target;
 
-  if (!(target instanceof HTMLElement))
-    return false;
-
-  return target instanceof HTMLInputElement ||
+  return target instanceof HTMLElement && (
+    target instanceof HTMLInputElement ||
     target instanceof HTMLTextAreaElement ||
     target instanceof HTMLSelectElement ||
-    target.isContentEditable;
+    target.isContentEditable
+  );
 }
 
 async function jumpToSlot(slot, closePopup = false) {
@@ -95,13 +134,59 @@ async function jumpToSlot(slot, closePopup = false) {
   await load();
 }
 
+function toggleHelpView() {
+  if (helpIsOpen) {
+    showSlotsView();
+  } else {
+    showHelpView();
+  }
+}
+
+async function openOptionsPage() {
+  try {
+    await browser.runtime.openOptionsPage();
+    window.close();
+  } catch (error) {
+    console.error(error);
+    setStatus("Could not open options.");
+  }
+}
+
+async function assignSlotFromPopup(slot) {
+  clearShortcutMode();
+
+  await send("assign-slot", { slot });
+  setStatus(`Assigned current tab to Slot ${slot}.`);
+  await load();
+}
+
+async function unassignSlotFromPopup(slot) {
+  clearShortcutMode();
+
+  const changed = await send("unassign-slot", { slot });
+  setStatus(changed ? `Slot ${slot} unassigned.` : `Slot ${slot} is already empty.`);
+  await load();
+}
+
+async function unassignCurrentTabFromPopup() {
+  clearShortcutMode();
+
+  const changed = await send("unassign-current-tab");
+  setStatus(changed ? "Current tab unassigned." : "Current tab was not assigned.");
+  await load();
+}
+
 function renderSlots() {
   const container = document.getElementById("slots");
   container.textContent = "";
 
   for (const slotView of state.slotViews) {
     const row = document.createElement("div");
-    row.className = `slot${slotView.assigned ? "" : " empty"}`;
+    row.className = [
+      "slot",
+      slotView.assigned ? "" : "empty",
+      slotView.isCurrentTab ? "current" : ""
+    ].filter(Boolean).join(" ");
 
     const jump = document.createElement("button");
     jump.type = "button";
@@ -144,14 +229,10 @@ function renderSlots() {
 
     assign.addEventListener("click", async () => {
       if (slotView.assigned) {
-        await send("unassign-slot", { slot: slotView.slot });
-        setStatus(`Slot ${slotView.slot} unassigned.`);
+        await unassignSlotFromPopup(slotView.slot);
       } else {
-        await send("assign-slot", { slot: slotView.slot });
-        setStatus(`Assigned current tab to Slot ${slotView.slot}.`);
+        await assignSlotFromPopup(slotView.slot);
       }
-
-      await load();
     });
 
     row.append(jump, details, assign);
@@ -165,8 +246,26 @@ function renderHelp() {
   renderShortcut("shortcut-assign", state.shortcutHelp.assign);
   renderShortcut("shortcut-unassign", state.shortcutHelp.unassign);
 
+  const environment = state.environment || {};
+
   const warning = document.getElementById("shortcut-warning");
+  warning.textContent = "Your extension shortcut settings appear to differ from these defaults.";
   warning.hidden = !shortcutsDifferFromDefaults(state.commands || [], state.shortcutDefaults || {});
+
+  const shortcutNote = document.getElementById("shortcut-note");
+  if (shortcutNote) {
+    shortcutNote.textContent = environment.supportsDefaultSlotShortcuts
+      ? "These are the default shortcuts:"
+      : "Chrome/Chromium requires you to manually assign most slot shortcuts from the extension shortcut settings page.";
+  }
+
+  const tstNote = document.getElementById("tst-note");
+  if (tstNote) {
+    tstNote.hidden = !environment.supportsTstBadges;
+
+    if (environment.supportsTstBadges)
+      tstNote.textContent = "Tree Style Tab users can enable slot badges in Options.";
+  }
 }
 
 function updateHelpButton() {
@@ -200,46 +299,14 @@ async function load() {
   renderHelp();
 }
 
-document.addEventListener("keydown", async event => {
-  if (helpIsOpen)
-    return;
-
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
-    return;
-
-  if (eventTargetAcceptsText(event))
-    return;
-
-  if (!/^[1-9]$/.test(event.key))
-    return;
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  await jumpToSlot(Number(event.key), true);
-});
-
-openHelpButton.addEventListener("click", () => {
-  if (helpIsOpen) {
-    showSlotsView();
-  } else {
-    showHelpView();
-}
-});
-
-async function openOptionsPage() {
-  try {
-    await browser.runtime.openOptionsPage();
-    window.close();
-  } catch (error) {
-    console.error(error);
-    setStatus("Could not open options.");
-  }
-}
-
+openHelpButton.addEventListener("click", toggleHelpView);
 document.getElementById("open-options").addEventListener("click", openOptionsPage);
 
-document.getElementById("manage-shortcuts-help").addEventListener("click", async () => {
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest(".manage-shortcuts-help");
+
+  if (!button) return;
+
   try {
     await send("open-shortcut-settings");
     window.close();
@@ -247,18 +314,6 @@ document.getElementById("manage-shortcuts-help").addEventListener("click", async
     console.error(error);
     setStatus("Could not open shortcut settings.");
   }
-});
-
-document.getElementById("unassign-current").addEventListener("click", async () => {
-  const changed = await send("unassign-current-tab");
-  setStatus(changed ? "Current tab unassigned." : "Current tab was not assigned.");
-  await load();
-});
-
-document.getElementById("clear-all").addEventListener("click", async () => {
-  await send("clear-all-slots");
-  setStatus("All slots cleared.");
-  await load();
 });
 
 document.addEventListener("keydown", async event => {
@@ -270,44 +325,98 @@ document.addEventListener("keydown", async event => {
 
   const key = event.key.toLowerCase();
 
-  if (key === "h") {
-    event.preventDefault();
+  if (key === "escape") {
+    if (shortcutMode) {
+      event.preventDefault();
+      clearShortcutMode("Shortcut mode canceled.");
+      return;
+    }
 
     if (helpIsOpen) {
+      event.preventDefault();
       showSlotsView();
-    } else {
-      showHelpView();
+      return;
     }
 
     return;
   }
 
+  if (key === "h") {
+    event.preventDefault();
+    clearShortcutMode();
+    toggleHelpView();
+    return;
+  }
+
   if (key === "o") {
     event.preventDefault();
+    clearShortcutMode();
     await openOptionsPage();
+    return;
   }
+
+  if (helpIsOpen)
+    return;
+
+  if (shortcutMode === "assign") {
+    event.preventDefault();
+
+    if (/^[1-9]$/.test(key)) {
+      await assignSlotFromPopup(Number(key));
+    } else {
+      clearShortcutMode("Shortcut mode canceled.");
+    }
+
+    return;
+  }
+
+  if (shortcutMode === "unassign") {
+    event.preventDefault();
+
+    if (/^[1-9]$/.test(key)) {
+      await unassignSlotFromPopup(Number(key));
+    } else if (key === "0") {
+      await unassignCurrentTabFromPopup();
+    } else {
+      clearShortcutMode("Shortcut mode canceled.");
+    }
+
+    return;
+  }
+
+  if (key === "a") {
+    event.preventDefault();
+    setShortcutMode("assign");
+    return;
+  }
+
+  if (key === "u") {
+    event.preventDefault();
+    setShortcutMode("unassign");
+    return;
+  }
+
+  if (!/^[1-9]$/.test(key))
+    return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  await jumpToSlot(Number(key), true);
+});
+
+document.getElementById("unassign-current").addEventListener("click", async () => {
+  await unassignCurrentTabFromPopup();
+});
+
+document.getElementById("clear-all").addEventListener("click", async () => {
+  clearShortcutMode();
+  await send("clear-all-slots");
+  setStatus("All slots cleared.");
+  await load();
 });
 
 load().catch(error => {
   console.error(error);
   setStatus("Could not load slot state.");
 });
-
-console.log({
-  prefersDark: matchMedia("(prefers-color-scheme: dark)").matches,
-  prefersForcedColors: matchMedia("(forced-colors: active)").matches,
-  rootColorScheme: getComputedStyle(document.documentElement).colorScheme,
-  bodyBackground: getComputedStyle(document.body).backgroundColor,
-  bodyColor: getComputedStyle(document.body).color
-});
-getCurrentThemeForActiveWindow().then(console.log);
-console.log(browser.theme.getCurrent);
-
-async function getCurrentThemeForActiveWindow() {
-  const [tab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-
-  return browser.theme.getCurrent(tab?.windowId);
-}

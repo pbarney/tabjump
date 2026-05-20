@@ -1,6 +1,6 @@
 /*
  * TabJump
- * v0.1.5 development build
+ * v0.1.7 development build
  *
  * v1 scope:
  * - Global slots only.
@@ -9,17 +9,61 @@
  * - Optional Tree Style Tab badges through TST's Extra Tab Contents API.
  */
 
+if (typeof importScripts === "function" && !globalThis.TabJumpPlatform)
+  importScripts("platform.js");
+
+if (!globalThis.TabJumpPlatform)
+  throw new Error("TabJumpPlatform is unavailable. Make sure platform.js is loaded before background.js.");
+
+const TabJumpPlatform = globalThis.TabJumpPlatform;
+
 const SLOT_IDS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 const TST_ID = "treestyletab@piro.sakura.ne.jp";
 const TST_BADGE_PLACE = "tab-front";
-
-const DEFAULT_OPTIONS = Object.freeze({
-  slotScope: "global",
-  showTstBadges: true,
-  showActionBadgeFeedback: true
-});
+const SLOT_FEEDBACK_NOTIFICATION_ID = "tabjump-slot-feedback";
+const NOTIFICATION_CREATE_COOLDOWN_MS = 700;
 
 let badgeTimer = null;
+let lastNotificationCreateAt = 0;
+
+function getDefaultOptions() {
+  return {
+    slotScope: "global",
+    showTstBadges: true,
+    showActionBadgeFeedback: true,
+    showDesktopNotifications: !TabJumpPlatform.isFirefoxRuntime()
+  };
+}
+
+function getEnvironment() {
+  return {
+    browserLabel: TabJumpPlatform.getBrowserLabel(),
+    openPopupCommandName: TabJumpPlatform.getOpenPopupCommandName(),
+    supportsTstBadges: TabJumpPlatform.supportsTstBadges(),
+    supportsDefaultSlotShortcuts: TabJumpPlatform.supportsDefaultSlotShortcuts(),
+    supportsDesktopNotifications: TabJumpPlatform.supportsDesktopNotifications()
+  };
+}
+
+function normalizeOptions(options) {
+  const normalized = { ...getDefaultOptions(), ...options };
+
+  if (!TabJumpPlatform.supportsTstBadges())
+    normalized.showTstBadges = false;
+
+  if (!TabJumpPlatform.supportsDesktopNotifications())
+    normalized.showDesktopNotifications = false;
+
+  return normalized;
+}
+
+function getActionApi() {
+  return browser.action || browser.browserAction;
+}
+
+function getMenuApi() {
+  return browser.menus || browser.contextMenus;
+}
 
 function emptySlotMap() {
   return {};
@@ -35,11 +79,11 @@ async function setStorage(values) {
 
 async function getOptions() {
   const { options = {} } = await getStorage("options");
-  return { ...DEFAULT_OPTIONS, ...options };
+  return normalizeOptions(options);
 }
 
 async function saveOptions(nextOptions) {
-  const options = { ...DEFAULT_OPTIONS, ...nextOptions };
+  const options = normalizeOptions(nextOptions);
   await setStorage({ options });
   await refreshAllTstBadges();
   return options;
@@ -93,7 +137,7 @@ function shortenUrlForDisplay(url) {
   }
 }
 
-function buildSlotView(slot, entry, options, commands) {
+function buildSlotView(slot, entry, options, commands, currentTabId = null) {
   const jumpShortcut = shortcutForCommand(commands, `jump-slot-${slot}`);
   const assignShortcut = shortcutForCommand(commands, `assign-slot-${slot}`);
   const badge = badgeForSlot(slot);
@@ -102,6 +146,7 @@ function buildSlotView(slot, entry, options, commands) {
     return {
       slot,
       assigned: false,
+      isCurrentTab: false,
       badge,
       badgeTitle: `Jump Slot ${slot}`,
       title: `Slot ${slot} is empty`,
@@ -119,6 +164,7 @@ function buildSlotView(slot, entry, options, commands) {
   return {
     slot,
     assigned: true,
+    isCurrentTab: entry.tabId === currentTabId,
     badge,
     badgeTitle: `Jump Slot ${slot}`,
     title: entry.title || entry.url || `Tab ${entry.tabId}`,
@@ -134,14 +180,19 @@ function buildSlotView(slot, entry, options, commands) {
   };
 }
 
-function buildPopupState(slots, options, commands, platformOs) {
+function buildPopupState(slots, options, commands, platformOs, currentTabId = null) {
+  const environment = getEnvironment();
+
   return {
     slots,
     options,
     commands,
-    slotViews: SLOT_IDS.map(slot => buildSlotView(slot, slots[String(slot)], options, commands)),
-    shortcutHelp: buildShortcutHelp(platformOs),
-    shortcutDefaults: buildShortcutDefaults(platformOs)
+    environment,
+    slotViews: SLOT_IDS.map(slot =>
+      buildSlotView(slot, slots[String(slot)], options, commands, currentTabId)
+    ),
+    shortcutHelp: buildShortcutHelp(platformOs, environment),
+    shortcutDefaults: buildShortcutDefaults(platformOs, environment)
   };
 }
 
@@ -188,11 +239,20 @@ function shortcutProfileForPlatform(platformOs) {
 }
 
 function shortcutRange(modifier, firstSlot, lastSlot) {
-  return `${modifier}+${firstSlot} through ${modifier}+${lastSlot}`;
+  return `${modifier}+${firstSlot} to ${modifier}+${lastSlot}`;
 }
 
-function buildShortcutHelp(platformOs) {
+function buildShortcutHelp(platformOs, environment) {
   const profile = shortcutProfileForPlatform(platformOs);
+
+  if (!environment.supportsDefaultSlotShortcuts) {
+    return {
+      open: profile.openDisplay,
+      jump: "Assign in extension shortcut settings",
+      assign: "Assign in extension shortcut settings",
+      unassign: "Assign in extension shortcut settings"
+    };
+  }
 
   return {
     open: profile.openDisplay,
@@ -202,11 +262,14 @@ function buildShortcutHelp(platformOs) {
   };
 }
 
-function buildShortcutDefaults(platformOs) {
+function buildShortcutDefaults(platformOs, environment) {
   const profile = shortcutProfileForPlatform(platformOs);
   const defaults = {
-    "_execute_browser_action": profile.openExpected
+    [environment.openPopupCommandName]: profile.openExpected
   };
+
+  if (!environment.supportsDefaultSlotShortcuts)
+    return defaults;
 
   for (const slot of SLOT_IDS) {
     defaults[`jump-slot-${slot}`] = `${profile.jumpExpectedModifier}+${slot}`;
@@ -226,12 +289,83 @@ async function flashBrowserActionBadge(text) {
   if (badgeTimer)
     clearTimeout(badgeTimer);
 
-  await browser.browserAction.setBadgeBackgroundColor({ color: "#334155" });
-  await browser.browserAction.setBadgeText({ text });
+  const actionApi = getActionApi();
+
+  await actionApi.setBadgeBackgroundColor({ color: "#334155" });
+  await actionApi.setBadgeText({ text });
 
   badgeTimer = setTimeout(() => {
-    browser.browserAction.setBadgeText({ text: "" }).catch(() => {});
+    actionApi.setBadgeText({ text: "" }).catch(() => {});
   }, 1400);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function createSlotFeedbackNotification(notificationApi, notificationOptions) {
+  const now = Date.now();
+  const elapsed = now - lastNotificationCreateAt;
+  const delay = Math.max(0, NOTIFICATION_CREATE_COOLDOWN_MS - elapsed);
+
+  if (delay > 0)
+    await sleep(delay);
+
+  lastNotificationCreateAt = Date.now();
+
+  await notificationApi.clear(SLOT_FEEDBACK_NOTIFICATION_ID).catch(() => {});
+  await notificationApi.create(SLOT_FEEDBACK_NOTIFICATION_ID, notificationOptions);
+}
+
+async function showSlotFeedbackNotification(message) {
+  const options = await getOptions();
+
+  if (!options.showDesktopNotifications)
+    return;
+
+  const notificationApi = browser.notifications;
+  if (!notificationApi)
+    return;
+
+if (notificationApi.getPermissionLevel) {
+  try {
+    const permissionLevel = await notificationApi.getPermissionLevel();
+    if (permissionLevel === "denied")
+      return;
+  } catch (error) {
+    // Permission-level checks are best-effort.
+    console.warn("[TabJump notifications] Could not read permission level:", error);
+  }
+}
+
+  const notificationOptions = {
+    type: "basic",
+    iconUrl: browser.runtime.getURL("icons/icon-96.png"),
+    title: "TabJump",
+    message
+  };
+
+  if (notificationApi.update) {
+    try {
+      const updated = await notificationApi.update(
+        SLOT_FEEDBACK_NOTIFICATION_ID,
+        notificationOptions
+      );
+
+      if (updated)
+        return;
+    } catch (_) {
+      // Fall back to clear/create.
+      console.warn("[TabJump notifications] update failed; falling back to create:", error);
+    }
+  }
+
+
+  try {
+    await createSlotFeedbackNotification(notificationApi, notificationOptions);
+  } catch (error) {
+    console.error("[TabJump notifications] create failed:", error);
+  }
 }
 
 async function getTabSafe(tabId) {
@@ -286,6 +420,7 @@ async function assignSlot(slot, tab) {
   await saveSlots(slots);
   await setTstBadgeForTab(targetTab.id, slot);
   await flashBrowserActionBadge(`S${slot}`);
+  await showSlotFeedbackNotification(`Assigned tab to slot ${slot}`);
 
   return slots[String(slot)];
 }
@@ -303,10 +438,11 @@ async function unassignSlot(slot) {
   await saveSlots(slots);
   await clearTstBadgeForTab(previous.tabId);
   await flashBrowserActionBadge(`–${slot}`);
+  await showSlotFeedbackNotification(`Slot ${slot} unassigned`);
   return true;
 }
 
-async function unassignTab(tabId) {
+async function unassignTab(tabId, feedback = {}) {
   const slots = await getSlots();
   let removed = false;
 
@@ -323,6 +459,13 @@ async function unassignTab(tabId) {
   await saveSlots(slots);
   await clearTstBadgeForTab(tabId);
   await flashBrowserActionBadge("–");
+
+  if (feedback.showDesktopNotification) {
+    await showSlotFeedbackNotification(
+      feedback.message || "Tab unassigned"
+    );
+  }
+
   return true;
 }
 
@@ -349,10 +492,16 @@ async function jumpSlot(slot) {
   return true;
 }
 
-async function clearAllSlots() {
+async function clearAllSlots(feedback = {}) {
+  const slots = await getSlots();
+  const hadSlots = Object.keys(slots).length > 0;
+
   await saveSlots(emptySlotMap());
   await clearAllTstBadges();
   await flashBrowserActionBadge("clr");
+
+  if (hadSlots && feedback.showDesktopNotification)
+    await showSlotFeedbackNotification("All jump slots cleared");
 }
 
 async function pruneMissingSlots() {
@@ -399,6 +548,9 @@ async function updateSlotSnapshot(tabId) {
  */
 
 async function registerToTst() {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return false;
+
   const options = await getOptions();
   if (!options.showTstBadges)
     return false;
@@ -425,6 +577,7 @@ async function registerToTst() {
           width: 1rem;
           min-width: 1rem;
           height: 1rem;
+          margin-block-start: 0.25rem
           margin-inline-end: 0.25em;
           border-radius: 999px;
           font: 700 0.9em/1 system-ui, sans-serif;
@@ -440,6 +593,9 @@ async function registerToTst() {
 }
 
 async function setTstBadgeForTab(tabId, slot) {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return;
+
   const options = await getOptions();
   if (!options.showTstBadges)
     return;
@@ -460,6 +616,9 @@ async function setTstBadgeForTab(tabId, slot) {
 }
 
 async function clearTstBadgeForTab(tabId) {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return;
+
   if (tabId == null)
     return;
 
@@ -475,6 +634,9 @@ async function clearTstBadgeForTab(tabId) {
 }
 
 async function clearAllTstBadges() {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return;
+
   try {
     await browser.runtime.sendMessage(TST_ID, {
       type: "clear-all-extra-contents"
@@ -485,6 +647,9 @@ async function clearAllTstBadges() {
 }
 
 async function refreshTstBadgesForTabs(tabIds = null) {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return;
+
   const options = await getOptions();
   if (!options.showTstBadges) {
     await clearAllTstBadges();
@@ -509,6 +674,9 @@ async function refreshTstBadgesForTabs(tabIds = null) {
 }
 
 async function refreshAllTstBadges() {
+  if (!TabJumpPlatform.supportsTstBadges())
+    return;
+
   const options = await getOptions();
 
   if (!options.showTstBadges) {
@@ -529,33 +697,37 @@ async function refreshAllTstBadges() {
  */
 
 async function rebuildContextMenus() {
-  await browser.menus.removeAll();
+  const menuApi = getMenuApi();
 
-  browser.menus.create({
-    id: "assign-root",
-    title: "Assign to Jump Slot",
-    contexts: ["tab"]
-  });
+  await menuApi.removeAll();
 
-  for (const slot of SLOT_IDS) {
-    browser.menus.create({
-      id: `assign-slot-${slot}`,
-      parentId: "assign-root",
-      title: `Slot ${slot}`,
+  if (TabJumpPlatform.supportsTabContextMenus()) {
+    menuApi.create({
+      id: "assign-root",
+      title: "Assign to Jump Slot",
+      contexts: ["tab"]
+    });
+
+    for (const slot of SLOT_IDS) {
+      menuApi.create({
+        id: `assign-slot-${slot}`,
+        parentId: "assign-root",
+        title: `Slot ${slot}`,
+        contexts: ["tab"]
+      });
+    }
+
+    menuApi.create({
+      id: "unassign-tab",
+      title: "Unassign this tab",
       contexts: ["tab"]
     });
   }
 
-  browser.menus.create({
-    id: "unassign-tab",
-    title: "Unassign this tab",
-    contexts: ["tab"]
-  });
-
-  browser.menus.create({
+  menuApi.create({
     id: "open-shortcut-settings",
     title: "Manage Extension Shortcuts",
-    contexts: ["browser_action"]
+    contexts: TabJumpPlatform.getActionMenuContexts()
   });
 }
 
@@ -568,8 +740,12 @@ browser.commands.onCommand.addListener(async command => {
     if (command === "unassign-current-tab") {
       const tab = await getActiveTab();
 
-      if (tab)
-        await unassignTab(tab.id);
+      if (tab) {
+        await unassignTab(tab.id, {
+          showDesktopNotification: true,
+          message: "Current tab unassigned"
+        });
+      }
 
       return;
     }
@@ -589,10 +765,13 @@ browser.commands.onCommand.addListener(async command => {
   }
 });
 
-browser.menus.onClicked.addListener(async (info, tab) => {
+getMenuApi().onClicked.addListener(async (info, tab) => {
   try {
     if (info.menuItemId === "unassign-tab" && tab) {
-      await unassignTab(tab.id);
+      await unassignTab(tab.id, {
+        showDesktopNotification: true,
+        message: "Tab unassigned"
+      });
       return;
     }
 
@@ -659,9 +838,15 @@ browser.runtime.onMessage.addListener((message) => {
 
   switch (message.type) {
     case "get-state":
-      return Promise.all([getSlots(), getOptions(), getCommands(), getPlatformOs()]).then(
-        ([slots, options, commands, platformOs]) =>
-          buildPopupState(slots, options, commands, platformOs)
+      return Promise.all([
+        getSlots(),
+        getOptions(),
+        getCommands(),
+        getPlatformOs(),
+        getActiveTab()
+      ]).then(
+        ([slots, options, commands, platformOs, activeTab]) =>
+          buildPopupState(slots, options, commands, platformOs, activeTab?.id ?? null)
       );
 
     case "assign-slot":
@@ -674,10 +859,17 @@ browser.runtime.onMessage.addListener((message) => {
       return unassignSlot(message.slot);
 
     case "unassign-current-tab":
-      return getActiveTab().then(tab => tab ? unassignTab(tab.id) : false);
+      return getActiveTab().then(tab =>
+        tab
+          ? unassignTab(tab.id, {
+              showDesktopNotification: true,
+              message: "Current tab unassigned"
+            })
+          : false
+      );
 
     case "clear-all-slots":
-      return clearAllSlots();
+      return clearAllSlots({ showDesktopNotification: true });
 
     case "save-options":
       return saveOptions(message.options || {});
@@ -745,7 +937,11 @@ async function openShortcutSettings() {
   if (browser.commands && browser.commands.openShortcutSettings)
     return browser.commands.openShortcutSettings();
 
-  await browser.tabs.create({ url: "about:addons" });
+  await browser.tabs.create({
+    url: TabJumpPlatform.isFirefoxRuntime()
+      ? "about:addons"
+      : "chrome://extensions/shortcuts"
+  });
 }
 
 browser.runtime.onStartup.addListener(async () => {
@@ -760,7 +956,11 @@ browser.runtime.onInstalled.addListener(async () => {
 });
 
 (async function init() {
-  await rebuildContextMenus();
+  // Chrome MV3 context menus persist across service-worker restarts; rebuilding
+  // them on every wake is unnecessary. Firefox MV2 keeps the v0.1.6 behavior.
+  if (!TabJumpPlatform.isManifestV3())
+    await rebuildContextMenus();
+
   await pruneMissingSlots();
   await registerToTst();
   await refreshAllTstBadges();

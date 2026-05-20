@@ -1,46 +1,27 @@
-body {
-  max-width: 720px;
-  padding: 1.25rem;
-}
+@import url("./style.css");
 
-h1 {
-  font-size: 22px;
-  margin: 0;
-  margin-block-end: 1.125rem;
-}
-
-h2 {
-  margin: 0;
-  margin-block-end: .675rem;
-}
-
-section {
-  border-bottom: 1px solid var(--border);
-  padding: .5rem;
-  padding-block-end: 1rem;
-  margin-block-end: 1rem;
-}
-
-label {
-  display: block;
-  margin: 8px 0;
-}
-
-label.disabled {
-  color: var(--muted);
-}
-
-button {
-  font: inherit;
-  margin-block-start: .375rem;
-  margin-inline-end: 1rem;
-  padding: .375rem .625rem;
+:root {
+  --page-max-width: 720px;
+  --page-padding: 20px;
+  --h1-font-size: 22px;
+  --h2-font-size: 15px;
+  --h2-margin: 0 0 10px;
+  --button-padding: 6px 10px;
+  --button-margin-top: 6px;
+  --button-margin-inline-end: 1rem;
+  --status-min-height: 1.4em;
+  --status-margin: 0;
+  --status-font-size: inherit;
 }
 
 p {
   color: var(--muted);
 }
 
-#status {
-  min-height: 1.4em;
+section {
+  border-bottom: 1px solid var(--border);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 }

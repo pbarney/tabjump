@@ -4,60 +4,38 @@
   --border: color-mix(in srgb, CanvasText 18%, transparent);
   --muted: color-mix(in srgb, CanvasText 62%, transparent);
   --accent: Highlight;
+  --text: CanvasText;
+  --heading-color: CanvasText;
 
-  --headerText: #064fd8;
-  --text: #212529;
-  
+  --page-width: auto;
+  --page-max-width: none;
+  --page-padding: 12px;
+  --page-overflow-x: visible;
+
+  --h1-font-size: 1.25rem;
+  --h1-margin: 0;
+  --h2-font-size: 1rem;
+  --h2-margin: 1em 0 .75em;
+
+  --section-padding: 14px;
+
+  --button-padding: 5px 8px;
+  --button-margin-top: 0;
+  --button-margin-inline-end: 0;
+
+  --select-min-width: 220px;
+  --select-padding: 4px;
+  --select-margin-top: 6px;
+
+  --status-min-height: 1.3em;
+  --status-margin: 8px 0 0;
+  --status-font-size: 12px;
+
   --kbd-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
   --kbd-bg-color: #f7f7f7;
   --kbd-color: #222325;
   --kbd-border: #a0a0a0;
   --kbd-border-accent: #707070;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --headerText: #8ab4ff;
-    --text: #f1f3f5;
-
-    --kbd-bg-color: #2b2d31;
-    --kbd-color: #f1f1f1;
-    --kbd-border: #6c7078;
-    --kbd-border-accent: #9aa0aa;
-  }
-}
-
-@media (forced-colors: active) {
-  :root {
-    --border: CanvasText;
-    --muted: GrayText;
-    --accent: Highlight;
-
-    --headerText: CanvasText;
-    --text: CanvasText;
-
-    --kbd-bg-color: ButtonFace;
-    --kbd-color: ButtonText;
-    --kbd-border: ButtonText;
-    --kbd-border-accent: ButtonText;
-  }
-}
-
-@media (forced-colors: active) {
-  button {
-    border-color: ButtonText;
-  }
-
-  button:disabled {
-    color: GrayText;
-    border-color: GrayText;
-    background: ButtonFace;
-  }
-
-  button:hover {
-    outline: 1px solid Highlight;
-    outline-offset: 2px;
-  }
 }
 
 * {
@@ -69,18 +47,58 @@
 }
 
 body {
+  width: var(--page-width);
+  max-width: var(--page-max-width);
+  overflow-x: var(--page-overflow-x);
   margin: 0;
+  padding: var(--page-padding);
   font: menu;
   background: Canvas;
-  /* color: CanvasText; */
   color: var(--text);
 }
 
-button {
+h1,
+h2,
+h3,
+h4 {
+  color: var(--heading-color);
+}
+
+h1 {
+  font-size: var(--h1-font-size);
+  margin: var(--h1-margin);
+}
+
+h2 {
+  font-size: var(--h2-font-size);
+  margin: var(--h2-margin);
+}
+
+section {
+  padding: var(--section-padding);
+}
+
+label {
+  display: block;
+  margin: 8px 0;
+}
+
+label.disabled,
+.muted {
+  color: var(--muted);
+}
+
+button,
+select {
   font: inherit;
+}
+
+button {
+  margin-top: var(--button-margin-top);
+  margin-inline-end: var(--button-margin-inline-end);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 5px 8px;
+  padding: var(--button-padding);
   background: ButtonFace;
   color: ButtonText;
   cursor: pointer;
@@ -98,5 +116,77 @@ button {
     border-color: transparent;
     background-color: color-mix(in srgb, ButtonFace 90%, black);
     cursor: default;
+  }
+}
+
+select {
+  display: block;
+  min-width: var(--select-min-width);
+  margin-top: var(--select-margin-top);
+  padding: var(--select-padding);
+}
+
+.status,
+#status {
+  min-height: var(--status-min-height);
+  margin: var(--status-margin);
+  color: var(--muted);
+  font-size: var(--status-font-size);
+}
+
+.shortcut {
+  white-space: nowrap;
+  font-weight: 600;
+
+  kbd {
+    display: inline-block;
+    box-sizing: border-box;
+
+    margin-block: .0625em .1875em;
+    margin-inline: .1em;
+    padding-block: .12em .16em;
+    padding-inline: .42em;
+    min-inline-size: 1.5em;
+    min-block-size: 1.55em;
+
+    font-family: var(--kbd-font);
+    font-size: .9em;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    color: var(--kbd-color);
+    background-color: var(--kbd-bg-color);
+
+    border: 1px solid var(--kbd-border);
+    border-inline-end: 2px solid var(--kbd-border-accent);
+    border-block-end: 2px solid var(--kbd-border-accent);
+    border-radius: .25em;
+  }
+}
+
+.shortcut-warning {
+  padding: .45rem .55rem;
+  border: 1px solid color-mix(in srgb, Highlight 42%, transparent);
+  border-radius: .375em;
+  background: color-mix(in srgb, Highlight 12%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kbd-bg-color: #2b2d31;
+    --kbd-color: #f1f1f1;
+    --kbd-border: #6c7078;
+    --kbd-border-accent: #9aa0aa;
+  }
+}
+
+@media (forced-colors: active) {
+  .shortcut kbd {
+    color: ButtonText;
+    background-color: ButtonFace;
+    border-color: ButtonText;
   }
 }

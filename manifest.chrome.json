@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "TabJump: Shortcuts for Open Tabs",
+  "version": "0.1.7",
+  "description": "Assign temporary jump keys to open tabs so you can quickly move between them while you work.",
+  "homepage_url": "https://github.com/pbarney/tabjump",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "64": "icons/icon-64.png",
+    "96": "icons/icon-96.png"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "contextMenus",
+    "notifications"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    },
+    "default_title": "TabJump",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+J",
+        "windows": "Alt+J",
+        "linux": "Alt+J",
+        "mac": "MacCtrl+J"
+      },
+      "description": "Open TabJump"
+    },
+    "jump-slot-1": {
+      "suggested_key": {
+        "default": "Alt+1",
+        "windows": "Alt+1",
+        "linux": "Alt+1",
+        "mac": "MacCtrl+1"
+      },
+      "description": "Jump to tab in slot 1"
+    },
+    "jump-slot-2": {
+      "description": "Jump to tab in slot 2"
+    },
+    "jump-slot-3": {
+      "description": "Jump to tab in slot 3"
+    },
+    "jump-slot-4": {
+      "description": "Jump to tab in slot 4"
+    },
+    "jump-slot-5": {
+      "description": "Jump to tab in slot 5"
+    },
+    "jump-slot-6": {
+      "description": "Jump to tab in slot 6"
+    },
+    "jump-slot-7": {
+      "description": "Jump to tab in slot 7"
+    },
+    "jump-slot-8": {
+      "description": "Jump to tab in slot 8"
+    },
+    "jump-slot-9": {
+      "description": "Jump to tab in slot 9"
+    },
+    "unassign-current-tab": {
+      "suggested_key": {
+        "default": "Alt+Shift+0",
+        "windows": "Alt+Shift+0",
+        "linux": "Alt+Shift+0",
+        "mac": "MacCtrl+Shift+0"
+      },
+      "description": "Unassign current tab from its jump slot"
+    },
+    "assign-slot-1": {
+      "suggested_key": {
+        "default": "Alt+Shift+1",
+        "windows": "Alt+Shift+1",
+        "linux": "Alt+Shift+1",
+        "mac": "MacCtrl+Shift+1"
+      },
+      "description": "Assign current tab to slot 1"
+    },
+    "assign-slot-2": {
+      "description": "Assign current tab to slot 2"
+    },
+    "assign-slot-3": {
+      "description": "Assign current tab to slot 3"
+    },
+    "assign-slot-4": {
+      "description": "Assign current tab to slot 4"
+    },
+    "assign-slot-5": {
+      "description": "Assign current tab to slot 5"
+    },
+    "assign-slot-6": {
+      "description": "Assign current tab to slot 6"
+    },
+    "assign-slot-7": {
+      "description": "Assign current tab to slot 7"
+    },
+    "assign-slot-8": {
+      "description": "Assign current tab to slot 8"
+    },
+    "assign-slot-9": {
+      "description": "Assign current tab to slot 9"
+    }
+  }
+}

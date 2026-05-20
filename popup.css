@@ -1,30 +1,11 @@
-@media (forced-colors: active) {
-  .slots .slot .slot-badge {
-    color: HighlightText;
-    background: Highlight;
-    border-color: Highlight;
+@import url("./style.css");
 
-    &:disabled {
-      color: GrayText;
-      background: ButtonFace;
-      border-color: GrayText;
-    }
-  }
-
-  .help-view .shortcut-warning {
-    border-color: Highlight;
-    background: Canvas;
-  }
-}
-
-body {
-  width: 380px;
-  overflow-x: hidden;
-  padding: 12px;
-}
-
-h1, h2, h3 {
-  color: var(--headerText);
+:root {
+  --page-width: 380px;
+  --page-overflow-x: hidden;
+  --text: #212529;
+  --heading-color: #064fd8;
+  --section-padding: 0;
 }
 
 header {
@@ -37,11 +18,6 @@ header {
     display: flex;
     gap: .5rem;
     align-items: center;
-
-    h1 {
-      font-size: 1.25rem;
-      margin: 0;
-    }
   }
 
   .header-actions {
@@ -67,11 +43,19 @@ header {
 
     &.empty {
       min-width: 0;
-      
-      .slot-details {
-        .slot-title {
-          color: var(--muted);
-        }
+
+      .slot-details .slot-title {
+        color: var(--muted);
+      }
+    }
+
+    &.current {
+      border-color: Highlight;
+      background: color-mix(in srgb, Highlight 10%, transparent);
+
+      .slot-badge {
+        border-color: Highlight;
+        background: color-mix(in srgb, Highlight 28%, transparent);
       }
     }
 
@@ -142,18 +126,20 @@ header {
 .help-view {
   font-size: .9rem;
 
-  h2, h3 {
+  h2,
+  h3,
+  h4 {
     margin-block: 1em .75em;
     font-weight: 600;
-  }
-
-  h2 {
-    font-size: 1rem;
   }
 
   h3 {
     font-size: .9rem;
     text-decoration: underline;
+  }
+
+  h4 {
+    font-weight: 500;
   }
 
   p {
@@ -168,53 +154,13 @@ header {
   li {
     margin: .25rem 0;
   }
-  
+
   strong {
     font-weight: 600;
   }
 
   .platform-note {
     color: var(--muted);
-  }
-
-  .shortcut {
-    white-space: nowrap;
-    font-weight: 600;
-
-    kbd {
-      display: inline-block;
-      box-sizing: border-box;
-
-      margin-block: .0625em .1875em;
-      margin-inline: .1em;
-      padding-block: .12em .16em;
-      padding-inline: .42em;
-      min-inline-size: 1.5em;
-      min-block-size: 1.55em;
-
-      font-family: var(--kbd-font);
-      font-size: .9em;
-      font-weight: 500;
-      line-height: 1.1;
-      text-align: center;
-      vertical-align: middle;
-      white-space: nowrap;
-
-      color: var(--kbd-color);
-      background-color: var(--kbd-bg-color);
-
-      border: 1px solid var(--kbd-border);
-      border-inline-end: 2px solid var(--kbd-border-accent);
-      border-block-end: 2px solid var(--kbd-border-accent);
-      border-radius: .25em;
-    }
-  }
-
-  .shortcut-warning {
-    padding: .45rem .55rem;
-    border: 1px solid color-mix(in srgb, Highlight 42%, transparent);
-    border-radius: .375em;
-    background: color-mix(in srgb, Highlight 12%, transparent);
   }
 
   .help-actions {
@@ -224,14 +170,31 @@ header {
 
     button {
       font-size: revert;
-      /* flex: 0; */
     }
   }
 }
 
-.status {
-  min-height: 1.3em;
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 12px;
+@media (forced-colors: active) {
+  .slots .slot .slot-badge {
+    color: HighlightText;
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  .slots .slot .slot-badge:disabled {
+    color: GrayText;
+    background: ButtonFace;
+    border-color: GrayText;
+  }
+
+  .slots .slot.current {
+    border-color: Highlight;
+    background: Canvas;
+  }
+
+  .slots .slot.current .slot-badge {
+    color: HighlightText;
+    background: Highlight;
+    border-color: Highlight;
+  }
 }

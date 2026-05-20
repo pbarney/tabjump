@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TabJump</title>
-  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -34,40 +33,56 @@
 
       <p>TabJump gives you temporary jump slots for tabs you are using right now.</p>
 
-      <h3>Use the popup</h3>
+      <h3>Add-On Keyboard Shortcuts</h3>
+      <p>These shortcuts work anywhere, as long as you have them assigned. <a href="#" class="manage-shortcuts-help">Manage Extension Shortcuts</a></p>
+      <p id="shortcut-note"></p>
+      <table>
+        <tr><td><strong>Jump to a slot:</strong></td><td><span id="shortcut-jump"></span></td></tr>
+        <tr><td><strong>Assign current tab:</strong></td><td><span id="shortcut-assign"></span></td></tr>
+        <tr><td><strong>Unassign current tab:</strong></td><td><span id="shortcut-unassign"></span></td></tr>
+      </table>
+
+      <h3>Using the popup</h3>
       <p>The <span id="shortcut-open"></span> key will open the popup.</p>
       <ul>
-        <li><strong>Jump</strong> switches to the tab assigned to that slot.</li>
+        <li><strong>Click a slot number</strong> to switch to the tab assigned to that slot.</li>
         <li><strong>Assign</strong> assigns the current tab to that slot.</li>
-        <li><strong>1-9 keys</strong> jump to the matching assigned slot and close the popup.</li>
-        <li><strong>Clear All</strong> removes all current assignments.</li>
+        <li><strong>Unassign</strong> clears that slot.</li>
+        <li><strong>Clear All</strong> removes all slot assignments.</li>
       </ul>
 
-      <h3>Default shortcuts</h3>
-      <ul>
-        <li><strong>Jump to a slot:</strong> <span id="shortcut-jump"></span></li>
-        <li><strong>Assign current tab:</strong> <span id="shortcut-assign"></span></li>
-        <li><strong>Unassign current tab:</strong> <span id="shortcut-unassign"></span></li>
-      </ul>
+      <h4>Popup Keyboard Shortcuts</h4>
+      <p>These shortcuts work only when the popup window is open.</p>
+      <table>
+        <tr><td><strong>Jump to a slot:</strong></td><td><span class="shortcut"><kbd>1</kbd>-<kbd>9</kbd></span></td></tr>
+        <tr><td><strong>Assign current tab:</strong></td><td><span class="shortcut"><kbd>A</kbd> then <kbd>1</kbd>-<kbd>9</kbd></span></td></tr>
+        <tr><td><strong>Unassign a tab:</strong></td><td><span class="shortcut"><kbd>U</kbd> then <kbd>1</kbd>-<kbd>9</kbd></span></td></tr>
+        <tr><td><strong>Unassign current tab:</strong></td><td><span class="shortcut"><kbd>U</kbd> then <kbd>0</kbd></span></td></tr>
+        <tr><td colspan="2"><strong>A</strong>ssign/<strong>U</strong>nassign mode cancels by timeout or by pressing something other than 1-9.</td></tr>
+        <tr><td><strong>Open Options</strong></td><td><span class="shortcut"><kbd>O</kbd></span></td></tr>
+        <tr><td><strong>Open/Close Help</strong></td><td><span class="shortcut"><kbd>H</kbd></span></td></tr>
+      </table>
 
       <p id="shortcut-warning" class="shortcut-warning" hidden>
-        Your Firefox shortcut settings appear to differ from these defaults.
+        Your extension shortcut settings appear to differ from these defaults.
       </p>
 
       <h3>Notes</h3>
       <ul>
-        <li>Assignments are temporary. Closed tabs lose their slots.</li>
-        <li>Tree Style Tab users can enable slot badges in Options.</li>
+        <li>Slot assignments will persist as long as the tab still exists, but closing an assigned tab will clear its slot.</li>
+        <li>Restarting the browser clears all slots.</li>
+        <li id="tst-note">Tree Style Tab users can enable slot badges in Options.</li>
       </ul>
 
       <div class="help-actions">
-        <button id="manage-shortcuts-help" type="button">Manage Extension Shortcuts</button>
+        <button class="manage-shortcuts-help" type="button">Manage Extension Shortcuts</button>
       </div>
     </section>
 
     <p id="status" class="status" role="status"></p>
   </main>
 
+  <script src="platform.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

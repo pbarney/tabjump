@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TabJump Options</title>
-  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -25,24 +24,28 @@
 
     <section>
       <h2>Shortcuts</h2>
-      <p>Firefox manages the actual keyboard shortcuts for this extension.</p>
+      <p id="shortcut-manager-note">Firefox manages the actual keyboard shortcuts for this extension.</p>
       <button id="manage-shortcuts" type="button">Manage Extension Shortcuts</button>
       <button id="open-popup-tab" type="button">Open Popup as Tab</button>
     </section>
 
-    <section>
+    <section id="tst-badges-section">
       <h2>Tree Style Tab Badges</h2>
       <label>
         <input id="show-tst-badges" type="checkbox">
         Show Jump Slot badges in Tree Style Tab
       </label>
-    </section>
+</section>
 
     <section>
       <h2>Feedback</h2>
       <label>
         <input id="show-action-badge-feedback" type="checkbox">
         Briefly flash tab assignments on the TabJump toolbar icon
+      </label>
+      <label>
+        <input id="show-desktop-notifications" type="checkbox">
+        Show desktop notifications when assigning or unassigning slots
       </label>
     </section>
 
@@ -54,6 +57,7 @@
     <p id="status" role="status"></p>
   </main>
 
+  <script src="platform.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

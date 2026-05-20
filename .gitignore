@@ -1,3 +1,8 @@
-notes.txt
-old/
-test.html 
+/notes.txt
+/old/
+/dist/
+/node_modules/
+/META-INF/
+*.zip
+*.xpi
+*.crx

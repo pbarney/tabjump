@@ -1,6 +1,14 @@
-Changelog
+# Changelog
 
-0.1.1
+## v0.1.0 initial version
+
+- "Tab Hotkeys Shortcuts" proof-of-concept
+- Assign numbered keyboard shortcuts to open tabs and jump to them instantly
+- Tree Style Tab users can also show Jump Slot badges in the TST sidebar.
+- Toolbar popup to show assigned slots
+- Tab context-menu assignments and jumping
+
+## v0.1.1 changes
 
 - renamed to TabJump and updated description in manifest
 - reduced slots from 0-9 to 1-9 to avoid using the Linux/Mac `Ctrl+0` shortcut
@@ -9,16 +17,86 @@ Changelog
 - added mock browser for local popup development
 - updated icon
 
-0.1.2
+## v0.1.2 changes
 
-- background.js now owns the popup view model.
-- popup.js no longer duplicates BADGE_STYLES background.js is the source of that data
-- popup.js now renders state.slotViews instead of calculating slot IDs, badge styles, or command names itself.
-- popup receives display-ready badge text and shortcut labels from background.js
-- popup receives shortened display URLs, with full URLs preserved as tooltips
-- fixed the accidental CSS selector issue where all slot titles were being muted/italicized
-- added viewport meta tags to popup/options/mock pages
+- Popup now consumes a background-owned slot view model.
+- Badge style/shortcut-label computation lives in the background script.
+- Popup no longer duplicates badge style constants.
+- Popup display URL is shortened for layout while preserving the full URL as a tooltip.
+- Fixed empty-slot title styling so assigned tab titles are not muted/italicized.
+- Added viewport meta tags to popup/options/mock pages
 
-0.1.3
-- Removed configurable badge styles
+## v0.1.3 changes
+
+- Removed configurable Unicode badge styles.
+- TST badges now render standard slot digits using CSS-controlled circular badge styling.
+- Options page no longer exposes badge style configuration.
+- Popup continues to consume a background-owned slot view model.
 - Added a roadmap note for possible future “show assigned key” badge behavior
+
+## v0.1.4 changes
+
+- Added in-popup Help view.
+- Added Help button beside Options.
+- Added Back button from Help to Jump Slots.
+- Added static default shortcut reference text.
+- Added always-visible “Manage Extension Shortcuts” button in Help.
+- Added simple warning if current command shortcuts differ from known defaults.
+- Added open popup command with `Alt+J` / `MacCtrl+J` defaults.
+- Updated Options button so it opens options and closes the popup.
+- Removed the visible refresh-badges button/listener from the options UI.
+- Disabling TST badges now clears existing badges immediately.
+- popup digit-key jump behavior
+
+## v0.1.5 changes
+
+- OS-specific shortcut text in help page
+- Header Help button becomes Back while viewing help.
+- Shortcut key combinations in help are wrapped to prevent awkward line breaks.
+- Rolled back popup digit-key jump behavior due to inability to keep popup open.
+- CSS improvements and layout changes for popup
+
+## v0.1.6 changes
+
+- Slot number badge in the popup now acts as the Jump button.
+- Popup Assign button now becomes Unassign when a slot is already assigned.
+- Popup digit keys `1` through `9` jump to the assigned slot and close the popup.
+- Added keyboard command for unassigning the current tab:
+  - Windows/default: `Alt+Shift+0`
+  - Linux: `Ctrl+Shift+0`
+  - macOS: `MacCtrl+Shift+0`
+- Renamed toolbar badge feedback
+- Removed multi-key chord assignment from the roadmap.
+- Transparent-background icon.
+- Removed `popup-dev.html` and `mock-browser.js`.
+- Added keyboard command for unassigning the current tab (Alt+Shift+0).
+- Renamed toolbar badge feedback option to “Briefly flash tab assignments on the TabJump toolbar icon.”
+- Added optional desktop notifications for slot assignment/unassignment feedback.
+- Desktop notifications default off in Firefox and on in Chrome/Chromium.
+- Removed multi-key chord assignment from the roadmap.
+
+## v0.1.7 changes
+
+- Chrome/Chromium support
+  - Added platform.js compatibility layer.
+  - Kept Firefox MV2 manifest as manifest.json and manifest.firefox.json.
+  - Added Chrome MV3 manifest as manifest.chrome.json.
+  - Added ready-to-load builds under dist/firefox and dist/chrome.
+  - Updated background code for:
+    - browserAction / action
+    - menus / contextMenus
+    - _execute_browser_action / _execute_action
+    - Firefox vs Chrome shortcut settings page
+    - Firefox-only TST badge behavior
+- Added popup-local shortcuts:
+  - Popup digit keys `1` to `9` jump to the assigned slot
+  - `A` then `1`-`9` to assign,
+  - `U` then `1`-`9` to unassign a slot
+  - `U` then `0` to unassign the current tab.
+  - `H` for Help/Back, `O` for Options
+- Highlighted the slot assigned to the current tab in the popup.
+
+
+## v0.1.8 suggested changes:
+
+- Onboarding process that explains the extension and how to assign the rest of the keys for Chrome users.
