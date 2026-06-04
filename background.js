@@ -1598,6 +1598,9 @@ async function openShortcutSettings() {
   });
 }
 
+// Tab/window IDs are only stable within a browser session.
+// Clear assignments on browser startup to avoid stale IDs pointing to the wrong tabs.
+// A future persistent mode should use browser.sessions.setTabValue/getTabValue.
 browser.runtime.onStartup.addListener(async () => {
   // TabJump intentionally treats assignments as live-session state, not restored session state.
   await clearAllSlots({ allWindows: true });

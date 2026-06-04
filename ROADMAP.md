@@ -164,6 +164,3 @@ Fix Chrome tab-dragging behavior which makes tabs lose their jump assignments.
 
   When changing modes, run an explicit migration function rather than trying to make one storage shape serve both modes.
 
-Context menu:
-  don't show "unasign tab" if it's not assigned
-  If it is assigned, show an indicator next to the slot number, or show "Assigned to slot x" in the first pop-out.
