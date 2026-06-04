@@ -53,7 +53,8 @@ function setShortcutMode(mode) {
   shortcutModeTimer = setTimeout(() => {
     shortcutMode = null;
     shortcutModeTimer = null;
-    setStatus("");
+    clearShortcutMode("Shortcut mode canceled.");
+    // setStatus("");
   }, SHORTCUT_MODE_TIMEOUT_MS);
 }
 

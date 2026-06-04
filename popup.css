@@ -117,6 +117,7 @@ header {
   display: flex;
   gap: 8px;
   margin-top: 10px;
+	justify-content: space-evenly;
 
   button {
     flex: 1;

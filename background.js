@@ -499,6 +499,28 @@ function findTabAssignmentInWindowSlots(windowSlots, tabId) {
   return null;
 }
 
+// find where the current tab is assigned
+async function findTabAssignment(tab) {
+  if (!tab || tab.id == null)
+    return null;
+
+  const options = await getOptions();
+
+  if (!isPerWindowScope(options)) {
+    const slots = await getSlots();
+    const found = findTabAssignmentInSlots(slots, tab.id);
+    return found ? { ...found, scope: "global" } : null;
+  }
+
+  const windowSlots = await getWindowSlots();
+  const key = windowKey(tab.windowId);
+  const found = findTabAssignmentInSlots(windowSlots[key] || emptySlotMap(), tab.id);
+
+  return found
+    ? { ...found, scope: "per-window", windowId: tab.windowId, windowKey: key }
+    : null;
+}
+
 function removeTabFromWindowSlots(windowSlots, tabId, except = {}) {
   let changed = false;
 
@@ -1227,22 +1249,47 @@ async function rebuildContextMenus() {
 
   if (TabJumpPlatform.supportsTabContextMenus()) {
     menuApi.create({
-      id: "assign-root",
-      title: "Assign to Jump Slot",
-      contexts: ["tab"]
+      id: "tabjump-unassigned-assign-root",
+      title: "TabJump: Assign to Jump Slot",
+      contexts: ["tab"],
+      visible: true
     });
 
     for (const slot of SLOT_IDS) {
       menuApi.create({
-        id: `assign-slot-${slot}`,
-        parentId: "assign-root",
+        id: `tabjump-unassigned-assign-slot-${slot}`,
+        parentId: "tabjump-unassigned-assign-root",
         title: `Slot ${slot}`,
         contexts: ["tab"]
       });
     }
 
     menuApi.create({
-      id: "unassign-tab",
+      id: "tabjump-assigned-root",
+      title: "TabJump",
+      contexts: ["tab"],
+      visible: false
+    });
+
+    menuApi.create({
+      id: "tabjump-assigned-assign-root",
+      parentId: "tabjump-assigned-root",
+      title: "Assign to Jump Slot",
+      contexts: ["tab"]
+    });
+
+    for (const slot of SLOT_IDS) {
+      menuApi.create({
+        id: `tabjump-assigned-assign-slot-${slot}`,
+        parentId: "tabjump-assigned-assign-root",
+        title: `Slot ${slot}`,
+        contexts: ["tab"]
+      });
+    }
+
+    menuApi.create({
+      id: "tabjump-unassign-tab",
+      parentId: "tabjump-assigned-root",
       title: "Unassign this tab",
       contexts: ["tab"]
     });
@@ -1255,6 +1302,49 @@ async function rebuildContextMenus() {
   });
 }
 
+// dynamic context-menu update helpers
+function slotContextMenuTitle(slot, assignedSlot) {
+  return Number(slot) === Number(assignedSlot)
+    ? `✓ Slot ${slot}, current`
+    : `Slot ${slot}`;
+}
+
+async function updateTabContextMenu(info, tab) {
+  if (!TabJumpPlatform.supportsTabContextMenus() || !tab)
+    return;
+
+  if (Array.isArray(info?.contexts) && !info.contexts.includes("tab"))
+    return;
+
+  const menuApi = getMenuApi();
+
+  if (!menuApi.update || !menuApi.refresh)
+    return;
+
+  const assignment = await findTabAssignment(tab);
+  const assignedSlot = assignment?.slot ?? null;
+  const isAssigned = assignedSlot !== null;
+
+  await menuApi.update("tabjump-unassigned-assign-root", {
+    visible: !isAssigned
+  });
+
+  await menuApi.update("tabjump-assigned-root", {
+    visible: isAssigned
+  });
+
+  for (const slot of SLOT_IDS) {
+    await menuApi.update(`tabjump-unassigned-assign-slot-${slot}`, {
+      title: `Slot ${slot}`
+    });
+
+    await menuApi.update(`tabjump-assigned-assign-slot-${slot}`, {
+      title: slotContextMenuTitle(slot, assignedSlot)
+    });
+  }
+
+  await menuApi.refresh();
+}
 /*
  * Event handlers
  */
@@ -1289,9 +1379,18 @@ browser.commands.onCommand.addListener(async command => {
   }
 });
 
+// listen for when context menus are shown
+if (TabJumpPlatform.supportsTabContextMenus() && getMenuApi().onShown) {
+  getMenuApi().onShown.addListener((info, tab) => {
+    updateTabContextMenu(info, tab).catch(error => {
+      console.error("Failed to update tab context menu:", error);
+    });
+  });
+}
+
 getMenuApi().onClicked.addListener(async (info, tab) => {
   try {
-    if (info.menuItemId === "unassign-tab" && tab) {
+    if (info.menuItemId === "tabjump-unassign-tab" && tab) {
       await unassignTab(tab.id, {
         showDesktopNotification: true,
         message: "Tab unassigned"
@@ -1304,7 +1403,9 @@ getMenuApi().onClicked.addListener(async (info, tab) => {
       return;
     }
 
-    const match = String(info.menuItemId).match(/^assign-slot-(\d)$/);
+    const match = String(info.menuItemId).match(
+      /^tabjump-(?:assigned|unassigned)-assign-slot-(\d)$/
+    );
     if (match && tab) {
       await assignSlot(Number(match[1]), tab);
     }
