@@ -19,13 +19,21 @@
   </header>
 
   <main>
-    <section id="slots-view">
-    <div id="slots" class="slots" aria-live="polite"></div>
-
-    <div class="actions">
-      <button id="unassign-current" type="button">Unassign Current Tab</button>
-      <button id="clear-all" type="button">Clear All</button>
+    <div style="display: flex; flex-direction: row;">
+      <div>
+        <span class="shortcut"><kbd>A</kbd></span> to Assign a new tab / 
+      </div>
+      <div>
+        <span class="shortcut"><kbd>U</kbd></span> to Unassign an existing tab
+      </div>
     </div>
+    <section id="slots-view">
+      <div id="slots" class="slots" aria-live="polite"></div>
+
+      <div class="actions">
+        <button id="unassign-current" type="button">Unassign Current Tab</button>
+        <button id="clear-all" type="button">Clear All</button>
+      </div>
     </section>
 
     <section id="help-view" class="help-view" hidden>

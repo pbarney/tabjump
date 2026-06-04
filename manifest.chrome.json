@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TabJump: Shortcuts for Open Tabs",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Assign temporary jump keys to open tabs so you can quickly move between them while you work.",
   "homepage_url": "https://github.com/pbarney/tabjump",
   "icons": {

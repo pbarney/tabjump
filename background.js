@@ -1,9 +1,9 @@
 /*
  * TabJump
- * v0.1.7 development build
+ * v0.2.0 development build
  *
- * v1 scope:
- * - Global slots only.
+ * v0.2 scope:
+ * - Global or per-window jump slots.
  * - Browser-level extension commands only.
  * - No page-content shortcut interception.
  * - Optional Tree Style Tab badges through TST's Extra Tab Contents API.
@@ -83,7 +83,16 @@ async function getOptions() {
 }
 
 async function saveOptions(nextOptions) {
-  const options = normalizeOptions(nextOptions);
+  const currentOptions = await getOptions();
+
+  // Slot-scope changes are handled by explicit migration functions. Ordinary
+  // option saves must not switch stores without migrating assignments.
+  const options = normalizeOptions({
+    ...currentOptions,
+    ...nextOptions,
+    slotScope: currentOptions.slotScope
+  });
+
   await setStorage({ options });
   await refreshAllTstBadges();
   return options;
@@ -91,11 +100,47 @@ async function saveOptions(nextOptions) {
 
 async function getSlots() {
   const { slots = emptySlotMap() } = await getStorage("slots");
-  return slots || emptySlotMap();
+  return isPlainObject(slots) ? slots : emptySlotMap();
 }
 
 async function saveSlots(slots) {
   await setStorage({ slots });
+}
+
+async function getWindowSlots() {
+  const { windowSlots = {} } = await getStorage("windowSlots");
+  return isPlainObject(windowSlots) ? windowSlots : {};
+}
+
+async function saveWindowSlots(windowSlots) {
+  await setStorage({ windowSlots });
+}
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function windowKey(windowId) {
+  return String(windowId);
+}
+
+function isPerWindowScope(options) {
+  return options.slotScope === "per-window";
+}
+
+function countAssignedSlots(slotMap) {
+  return Object.values(slotMap || {}).filter(Boolean).length;
+}
+
+function removeEmptyWindowSlotMap(windowSlots, key) {
+  if (windowSlots[key] && countAssignedSlots(windowSlots[key]) === 0)
+    delete windowSlots[key];
+}
+
+function sortedSlotEntries(slotMap) {
+  return Object.entries(slotMap || {})
+    .filter(([, entry]) => Boolean(entry))
+    .sort(([a], [b]) => Number(a) - Number(b));
 }
 
 function slotFromCommand(command, prefix) {
@@ -180,7 +225,7 @@ function buildSlotView(slot, entry, options, commands, currentTabId = null) {
   };
 }
 
-function buildPopupState(slots, options, commands, platformOs, currentTabId = null) {
+function buildPopupState(slots, options, commands, platformOs, currentTabId = null, activeWindowId = null) {
   const environment = getEnvironment();
 
   return {
@@ -188,6 +233,8 @@ function buildPopupState(slots, options, commands, platformOs, currentTabId = nu
     options,
     commands,
     environment,
+    activeWindowId,
+    slotScopeLabel: isPerWindowScope(options) ? "Per-window slots" : "Global slots",
     slotViews: SLOT_IDS.map(slot =>
       buildSlotView(slot, slots[String(slot)], options, commands, currentTabId)
     ),
@@ -327,16 +374,16 @@ async function showSlotFeedbackNotification(message) {
   if (!notificationApi)
     return;
 
-if (notificationApi.getPermissionLevel) {
-  try {
-    const permissionLevel = await notificationApi.getPermissionLevel();
-    if (permissionLevel === "denied")
-      return;
-  } catch (error) {
-    // Permission-level checks are best-effort.
-    console.warn("[TabJump notifications] Could not read permission level:", error);
+  if (notificationApi.getPermissionLevel) {
+    try {
+      const permissionLevel = await notificationApi.getPermissionLevel();
+      if (permissionLevel === "denied")
+        return;
+    } catch (error) {
+      // Permission-level checks are best-effort.
+      console.warn("[TabJump notifications] Could not read permission level:", error);
+    }
   }
-}
 
   const notificationOptions = {
     type: "basic",
@@ -354,7 +401,7 @@ if (notificationApi.getPermissionLevel) {
 
       if (updated)
         return;
-    } catch (_) {
+    } catch (error) {
       // Fall back to clear/create.
       console.warn("[TabJump notifications] update failed; falling back to create:", error);
     }
@@ -381,6 +428,27 @@ async function getActiveTab() {
   return tab || null;
 }
 
+async function getLastFocusedNormalWindow() {
+  try {
+    const win = await browser.windows.getLastFocused();
+    return win && win.type === "normal" ? win : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function getActiveWindowId(tab = null) {
+  if (tab && tab.windowId != null)
+    return tab.windowId;
+
+  const activeTab = await getActiveTab();
+  if (activeTab && activeTab.windowId != null)
+    return activeTab.windowId;
+
+  const win = await getLastFocusedNormalWindow();
+  return win?.id ?? null;
+}
+
 function tabToSlotEntry(tab) {
   return {
     tabId: tab.id,
@@ -394,6 +462,79 @@ function tabToSlotEntry(tab) {
   };
 }
 
+function truncateLabel(value, maxLength = 42) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+
+  if (text.length <= maxLength)
+    return text;
+
+  return `${text.slice(0, maxLength - 1)}…`;
+}
+
+function formatAssignedSlotMessage(slot, tab) {
+  const fallback = tab?.id == null ? "Tab" : `Tab ${tab.id}`;
+  const title = truncateLabel(tab?.title || tab?.url || fallback, 64);
+  return `Assigned Slot ${slot} to "${title}"`;
+}
+
+function findTabAssignmentInSlots(slots, tabId) {
+  for (const [slot, entry] of sortedSlotEntries(slots)) {
+    if (entry && entry.tabId === tabId)
+      return { slot: Number(slot), entry };
+  }
+
+  return null;
+}
+
+function findTabAssignmentInWindowSlots(windowSlots, tabId) {
+  const windowIds = Object.keys(windowSlots || {}).sort((a, b) => Number(a) - Number(b));
+
+  for (const key of windowIds) {
+    for (const [slot, entry] of sortedSlotEntries(windowSlots[key])) {
+      if (entry && entry.tabId === tabId)
+        return { windowId: Number(key), windowKey: key, slot: Number(slot), entry };
+    }
+  }
+
+  return null;
+}
+
+function removeTabFromWindowSlots(windowSlots, tabId, except = {}) {
+  let changed = false;
+
+  for (const [key, slotMap] of Object.entries(windowSlots || {})) {
+    for (const [slot, entry] of Object.entries(slotMap || {})) {
+      if (!entry || entry.tabId !== tabId)
+        continue;
+
+      if (key === except.windowKey && String(slot) === String(except.slot))
+        continue;
+
+      delete slotMap[slot];
+      changed = true;
+    }
+
+    removeEmptyWindowSlotMap(windowSlots, key);
+  }
+
+  return changed;
+}
+
+async function getScopedSlotsForPopup(options, activeTab = null) {
+  if (!isPerWindowScope(options))
+    return { slots: await getSlots(), activeWindowId: activeTab?.windowId ?? null };
+
+  const activeWindowId = await getActiveWindowId(activeTab);
+  if (activeWindowId == null)
+    return { slots: emptySlotMap(), activeWindowId: null };
+
+  const windowSlots = await getWindowSlots();
+  return {
+    slots: windowSlots[windowKey(activeWindowId)] || emptySlotMap(),
+    activeWindowId
+  };
+}
+
 async function assignSlot(slot, tab) {
   if (!isValidSlot(slot))
     throw new Error(`Invalid slot: ${slot}`);
@@ -402,6 +543,15 @@ async function assignSlot(slot, tab) {
   if (!targetTab || targetTab.id == null)
     throw new Error("No active tab is available.");
 
+  const options = await getOptions();
+
+  if (isPerWindowScope(options))
+    return assignSlotPerWindow(slot, targetTab);
+
+  return assignSlotGlobal(slot, targetTab);
+}
+
+async function assignSlotGlobal(slot, targetTab) {
   const slots = await getSlots();
 
   // A tab can only occupy one global slot.
@@ -420,15 +570,49 @@ async function assignSlot(slot, tab) {
   await saveSlots(slots);
   await setTstBadgeForTab(targetTab.id, slot);
   await flashBrowserActionBadge(`S${slot}`);
-  await showSlotFeedbackNotification(`Assigned tab to slot ${slot}`);
+  await showSlotFeedbackNotification(formatAssignedSlotMessage(slot, targetTab));
 
   return slots[String(slot)];
+}
+
+async function assignSlotPerWindow(slot, targetTab) {
+  const windowSlots = await getWindowSlots();
+  const key = windowKey(targetTab.windowId);
+  const slotKey = String(slot);
+  const scopedSlots = windowSlots[key] || emptySlotMap();
+
+  removeTabFromWindowSlots(windowSlots, targetTab.id);
+
+  const previous = scopedSlots[slotKey];
+  if (previous && previous.tabId !== targetTab.id)
+    await clearTstBadgeForTab(previous.tabId);
+
+  scopedSlots[slotKey] = tabToSlotEntry(targetTab);
+  windowSlots[key] = scopedSlots;
+
+  await saveWindowSlots(windowSlots);
+  await setTstBadgeForTab(targetTab.id, slot);
+  await flashBrowserActionBadge(`S${slot}`);
+  await showSlotFeedbackNotification(formatAssignedSlotMessage(slot, targetTab));
+
+  return scopedSlots[slotKey];
 }
 
 async function unassignSlot(slot) {
   if (!isValidSlot(slot))
     throw new Error(`Invalid slot: ${slot}`);
 
+  const options = await getOptions();
+
+  if (isPerWindowScope(options)) {
+    const activeWindowId = await getActiveWindowId();
+    return unassignSlotPerWindow(slot, activeWindowId);
+  }
+
+  return unassignSlotGlobal(slot);
+}
+
+async function unassignSlotGlobal(slot) {
   const slots = await getSlots();
   const previous = slots[String(slot)];
   if (!previous)
@@ -442,21 +626,37 @@ async function unassignSlot(slot) {
   return true;
 }
 
-async function unassignTab(tabId, feedback = {}) {
-  const slots = await getSlots();
-  let removed = false;
+async function unassignSlotPerWindow(slot, activeWindowId) {
+  if (activeWindowId == null)
+    return false;
 
-  for (const [slot, entry] of Object.entries(slots)) {
-    if (entry && entry.tabId === tabId) {
-      delete slots[slot];
-      removed = true;
-    }
-  }
+  const windowSlots = await getWindowSlots();
+  const key = windowKey(activeWindowId);
+  const scopedSlots = windowSlots[key] || emptySlotMap();
+  const previous = scopedSlots[String(slot)];
+
+  if (!previous)
+    return false;
+
+  delete scopedSlots[String(slot)];
+  removeEmptyWindowSlotMap(windowSlots, key);
+
+  await saveWindowSlots(windowSlots);
+  await clearTstBadgeForTab(previous.tabId);
+  await flashBrowserActionBadge(`–${slot}`);
+  await showSlotFeedbackNotification(`Slot ${slot} unassigned`);
+  return true;
+}
+
+async function unassignTab(tabId, feedback = {}) {
+  const options = await getOptions();
+  const removed = isPerWindowScope(options)
+    ? await unassignTabPerWindow(tabId)
+    : await unassignTabGlobal(tabId);
 
   if (!removed)
     return false;
 
-  await saveSlots(slots);
   await clearTstBadgeForTab(tabId);
   await flashBrowserActionBadge("–");
 
@@ -469,20 +669,48 @@ async function unassignTab(tabId, feedback = {}) {
   return true;
 }
 
+async function unassignTabGlobal(tabId) {
+  const slots = await getSlots();
+  let removed = false;
+
+  for (const [slot, entry] of Object.entries(slots)) {
+    if (entry && entry.tabId === tabId) {
+      delete slots[slot];
+      removed = true;
+    }
+  }
+
+  if (removed)
+    await saveSlots(slots);
+
+  return removed;
+}
+
+async function unassignTabPerWindow(tabId) {
+  const windowSlots = await getWindowSlots();
+  const removed = removeTabFromWindowSlots(windowSlots, tabId);
+
+  if (removed)
+    await saveWindowSlots(windowSlots);
+
+  return removed;
+}
+
 async function jumpSlot(slot) {
   if (!isValidSlot(slot))
     throw new Error(`Invalid slot: ${slot}`);
 
-  const slots = await getSlots();
-  const entry = slots[String(slot)];
+  const options = await getOptions();
+  const entry = isPerWindowScope(options)
+    ? await getPerWindowJumpEntry(slot)
+    : (await getSlots())[String(slot)];
+
   if (!entry)
     return false;
 
   const tab = await getTabSafe(entry.tabId);
   if (!tab) {
-    delete slots[String(slot)];
-    await saveSlots(slots);
-    await clearTstBadgeForTab(entry.tabId);
+    await unassignTab(entry.tabId);
     await flashBrowserActionBadge("gone");
     return false;
   }
@@ -492,36 +720,119 @@ async function jumpSlot(slot) {
   return true;
 }
 
-async function clearAllSlots(feedback = {}) {
-  const slots = await getSlots();
-  const hadSlots = Object.keys(slots).length > 0;
+async function getPerWindowJumpEntry(slot) {
+  const activeWindowId = await getActiveWindowId();
+  if (activeWindowId == null)
+    return null;
 
-  await saveSlots(emptySlotMap());
+  const windowSlots = await getWindowSlots();
+  return windowSlots[windowKey(activeWindowId)]?.[String(slot)] || null;
+}
+
+async function clearAllSlots(feedback = {}) {
+  const options = await getOptions();
+
+  if (isPerWindowScope(options) && !feedback.allWindows)
+    return clearCurrentWindowSlots(feedback);
+
+  const hadSlots = isPerWindowScope(options)
+    ? countAssignedWindowSlots(await getWindowSlots()) > 0
+    : Object.keys(await getSlots()).length > 0;
+
+  await setStorage({ slots: emptySlotMap(), windowSlots: {} });
   await clearAllTstBadges();
   await flashBrowserActionBadge("clr");
 
   if (hadSlots && feedback.showDesktopNotification)
     await showSlotFeedbackNotification("All jump slots cleared");
+
+  return { changed: hadSlots, scope: "all" };
+}
+
+async function clearCurrentWindowSlots(feedback = {}) {
+  const activeWindowId = await getActiveWindowId();
+  if (activeWindowId == null)
+    return { changed: false, scope: "per-window" };
+
+  const windowSlots = await getWindowSlots();
+  const key = windowKey(activeWindowId);
+  const scopedSlots = windowSlots[key] || emptySlotMap();
+  const removedTabIds = sortedSlotEntries(scopedSlots)
+    .map(([, entry]) => entry.tabId)
+    .filter(tabId => tabId != null);
+
+  const hadSlots = removedTabIds.length > 0;
+  delete windowSlots[key];
+
+  await saveWindowSlots(windowSlots);
+
+  for (const tabId of removedTabIds)
+    await clearTstBadgeForTab(tabId);
+
+  await flashBrowserActionBadge("clr");
+
+  if (hadSlots && feedback.showDesktopNotification)
+    await showSlotFeedbackNotification("Current-window jump slots cleared");
+
+  return { changed: hadSlots, scope: "per-window" };
+}
+
+function countAssignedWindowSlots(windowSlots) {
+  return Object.values(windowSlots || {}).reduce(
+    (total, slotMap) => total + countAssignedSlots(slotMap),
+    0
+  );
 }
 
 async function pruneMissingSlots() {
   const slots = await getSlots();
-  let changed = false;
+  const windowSlots = await getWindowSlots();
+  let slotsChanged = false;
+  let windowSlotsChanged = false;
 
   for (const [slot, entry] of Object.entries(slots)) {
     if (!entry || !await getTabSafe(entry.tabId)) {
       delete slots[slot];
-      changed = true;
+      slotsChanged = true;
     }
   }
 
-  if (changed)
-    await saveSlots(slots);
+  for (const [key, slotMap] of Object.entries(windowSlots)) {
+    for (const [slot, entry] of Object.entries(slotMap || {})) {
+      if (!entry || !await getTabSafe(entry.tabId)) {
+        delete slotMap[slot];
+        windowSlotsChanged = true;
+      }
+    }
 
-  return slots;
+    const before = Boolean(windowSlots[key]);
+    removeEmptyWindowSlotMap(windowSlots, key);
+    if (before && !windowSlots[key])
+      windowSlotsChanged = true;
+  }
+
+  const updates = {};
+  if (slotsChanged)
+    updates.slots = slots;
+  if (windowSlotsChanged)
+    updates.windowSlots = windowSlots;
+
+  if (slotsChanged || windowSlotsChanged)
+    await setStorage(updates);
+
+  return { slots, windowSlots };
 }
 
 async function updateSlotSnapshot(tabId) {
+  const options = await getOptions();
+
+  if (isPerWindowScope(options))
+    return updateSlotSnapshotPerWindow(tabId);
+
+  return updateSlotSnapshotGlobal(tabId);
+}
+
+async function updateSlotSnapshotGlobal(tabId) {
   const slots = await getSlots();
   let changed = false;
   const tab = await getTabSafe(tabId);
@@ -541,6 +852,225 @@ async function updateSlotSnapshot(tabId) {
 
   if (changed)
     await saveSlots(slots);
+}
+
+async function updateSlotSnapshotPerWindow(tabId) {
+  const windowSlots = await getWindowSlots();
+  const found = findTabAssignmentInWindowSlots(windowSlots, tabId);
+
+  if (!found)
+    return;
+
+  const tab = await getTabSafe(tabId);
+  if (!tab) {
+    await unassignTabPerWindow(tabId);
+    await clearTstBadgeForTab(tabId);
+    return;
+  }
+
+  if (windowKey(tab.windowId) !== found.windowKey) {
+    await moveAssignedTabToWindow(tabId, tab);
+    return;
+  }
+
+  const slotMap = windowSlots[found.windowKey];
+  slotMap[String(found.slot)] = {
+    ...found.entry,
+    ...tabToSlotEntry(tab),
+    assignedAt: found.entry.assignedAt
+  };
+
+  await saveWindowSlots(windowSlots);
+}
+
+async function moveAssignedTabToWindow(tabId, tab = null) {
+  const targetTab = tab || await getTabSafe(tabId);
+
+  if (!targetTab) {
+    await unassignTab(tabId);
+    return false;
+  }
+
+  const windowSlots = await getWindowSlots();
+  const found = findTabAssignmentInWindowSlots(windowSlots, tabId);
+
+  if (!found)
+    return false;
+
+  const sourceKey = found.windowKey;
+  const targetKey = windowKey(targetTab.windowId);
+  const slotKey = String(found.slot);
+  const targetSlotMap = windowSlots[targetKey] || emptySlotMap();
+  const displaced = targetSlotMap[slotKey] && targetSlotMap[slotKey].tabId !== tabId
+    ? targetSlotMap[slotKey]
+    : null;
+
+  removeTabFromWindowSlots(windowSlots, tabId, {
+    windowKey: sourceKey,
+    slot: slotKey
+  });
+
+  if (sourceKey !== targetKey && windowSlots[sourceKey]?.[slotKey]?.tabId === tabId)
+    delete windowSlots[sourceKey][slotKey];
+
+  removeEmptyWindowSlotMap(windowSlots, sourceKey);
+
+  targetSlotMap[slotKey] = {
+    ...found.entry,
+    ...tabToSlotEntry(targetTab),
+    assignedAt: found.entry.assignedAt
+  };
+  windowSlots[targetKey] = targetSlotMap;
+
+  await saveWindowSlots(windowSlots);
+
+  if (displaced)
+    await clearTstBadgeForTab(displaced.tabId);
+
+  await setTstBadgeForTab(targetTab.id, found.slot);
+
+  if (displaced) {
+    await flashBrowserActionBadge(`S${found.slot}`);
+    await showSlotFeedbackNotification(`Slot ${found.slot} reassigned to moved tab.`);
+  }
+
+  return true;
+}
+
+async function assignedSlotsByTab() {
+  const options = await getOptions();
+  const { slots, windowSlots } = await pruneMissingSlots();
+  const assignedByTab = new Map();
+
+  if (!isPerWindowScope(options)) {
+    for (const [slot, entry] of sortedSlotEntries(slots)) {
+      if (entry && entry.tabId != null)
+        assignedByTab.set(entry.tabId, Number(slot));
+    }
+
+    return assignedByTab;
+  }
+
+  for (const slotMap of Object.values(windowSlots || {})) {
+    for (const [slot, entry] of sortedSlotEntries(slotMap)) {
+      if (entry && entry.tabId != null)
+        assignedByTab.set(entry.tabId, Number(slot));
+    }
+  }
+
+  return assignedByTab;
+}
+
+function buildWindowChoice(windowId, slotMap, currentWindowId, recommendedWindowId) {
+  const count = countAssignedSlots(slotMap);
+  const preview = sortedSlotEntries(slotMap)
+    .slice(0, 3)
+    .map(([slot, entry]) => {
+      const title = entry.title || shortenUrlForDisplay(entry.url) || `Tab ${entry.tabId}`;
+      return `${slot} ${truncateLabel(title)}`;
+    })
+    .join(", ");
+  const suffix = count > 3 ? `, +${count - 3} more` : "";
+  const labelPrefix = windowId === currentWindowId ? "Current window" : `Window ${windowId}`;
+  const recommended = windowId === recommendedWindowId;
+
+  return {
+    windowId,
+    count,
+    recommended,
+    label: `${labelPrefix}, ${count} slot${count === 1 ? "" : "s"}: ${preview}${suffix}`
+  };
+}
+
+async function getPerWindowToGlobalChoices() {
+  await pruneMissingSlots();
+
+  const windowSlots = await getWindowSlots();
+  const lastFocusedWindow = await getLastFocusedNormalWindow();
+  const currentWindowId = lastFocusedWindow?.id ?? null;
+  const assignedWindowIds = Object.keys(windowSlots)
+    .filter(key => countAssignedSlots(windowSlots[key]) > 0)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const recommendedWindowId = assignedWindowIds.includes(currentWindowId)
+    ? currentWindowId
+    : assignedWindowIds[0] ?? null;
+
+  return {
+    choices: assignedWindowIds.map(windowId =>
+      buildWindowChoice(
+        windowId,
+        windowSlots[windowKey(windowId)],
+        currentWindowId,
+        recommendedWindowId
+      )
+    ),
+    recommendedWindowId
+  };
+}
+
+async function migrateGlobalToPerWindow() {
+  const options = await getOptions();
+  const { slots } = await pruneMissingSlots();
+  const windowSlots = {};
+
+  for (const [slot, entry] of sortedSlotEntries(slots)) {
+    if (!entry || entry.windowId == null)
+      continue;
+
+    const key = windowKey(entry.windowId);
+    windowSlots[key] ||= emptySlotMap();
+    windowSlots[key][slot] = entry;
+  }
+
+  const nextOptions = normalizeOptions({ ...options, slotScope: "per-window" });
+  await setStorage({ slots: emptySlotMap(), windowSlots, options: nextOptions });
+  await refreshAllTstBadges();
+  return nextOptions;
+}
+
+async function migratePerWindowToGlobal(keepWindowId = null) {
+  const options = await getOptions();
+  const { windowSlots } = await pruneMissingSlots();
+  const chosenSlots = keepWindowId == null
+    ? emptySlotMap()
+    : { ...(windowSlots[windowKey(keepWindowId)] || emptySlotMap()) };
+  const nextOptions = normalizeOptions({ ...options, slotScope: "global" });
+
+  await setStorage({ slots: chosenSlots, windowSlots: {}, options: nextOptions });
+  await refreshAllTstBadges();
+  return nextOptions;
+}
+
+async function requestSlotScopeChange(slotScope) {
+  if (!["global", "per-window"].includes(slotScope))
+    throw new Error(`Invalid slot scope: ${slotScope}`);
+
+  const options = await getOptions();
+
+  if (options.slotScope === slotScope)
+    return { status: "unchanged", options };
+
+  if (slotScope === "per-window") {
+    const nextOptions = await migrateGlobalToPerWindow();
+    return { status: "changed", options: nextOptions };
+  }
+
+  const { choices, recommendedWindowId } = await getPerWindowToGlobalChoices();
+
+  if (choices.length > 1)
+    return { status: "choice-required", choices, recommendedWindowId, options };
+
+  const nextOptions = await migratePerWindowToGlobal(choices[0]?.windowId ?? null);
+  return { status: "changed", options: nextOptions };
+}
+
+async function confirmSlotScopeChange(slotScope, keepWindowId = null) {
+  if (slotScope !== "global")
+    throw new Error(`Unsupported confirmed slot scope: ${slotScope}`);
+
+  const nextOptions = await migratePerWindowToGlobal(keepWindowId);
+  return { status: "changed", options: nextOptions };
 }
 
 /*
@@ -577,7 +1107,7 @@ async function registerToTst() {
           width: 1rem;
           min-width: 1rem;
           height: 1rem;
-          margin-block-start: 0.25rem
+          margin-block-start: 0.25rem;
           margin-inline-end: 0.25em;
           border-radius: 999px;
           font: 700 0.9em/1 system-ui, sans-serif;
@@ -656,13 +1186,7 @@ async function refreshTstBadgesForTabs(tabIds = null) {
     return;
   }
 
-  const slots = await pruneMissingSlots();
-  const assignedByTab = new Map();
-
-  for (const [slot, entry] of Object.entries(slots)) {
-    if (entry && entry.tabId != null)
-      assignedByTab.set(entry.tabId, Number(slot));
-  }
+  const assignedByTab = await assignedSlotsByTab();
 
   const ids = tabIds || [...assignedByTab.keys()];
   for (const tabId of ids) {
@@ -815,6 +1339,20 @@ browser.tabs.onAttached.addListener(async tabId => {
 
 browser.windows.onRemoved.addListener(async windowId => {
   try {
+    const options = await getOptions();
+
+    if (isPerWindowScope(options)) {
+      const windowSlots = await getWindowSlots();
+      const key = windowKey(windowId);
+
+      if (windowSlots[key]) {
+        delete windowSlots[key];
+        await saveWindowSlots(windowSlots);
+      }
+
+      return;
+    }
+
     const slots = await getSlots();
     let changed = false;
 
@@ -839,15 +1377,21 @@ browser.runtime.onMessage.addListener((message) => {
   switch (message.type) {
     case "get-state":
       return Promise.all([
-        getSlots(),
         getOptions(),
         getCommands(),
         getPlatformOs(),
         getActiveTab()
-      ]).then(
-        ([slots, options, commands, platformOs, activeTab]) =>
-          buildPopupState(slots, options, commands, platformOs, activeTab?.id ?? null)
-      );
+      ]).then(async ([options, commands, platformOs, activeTab]) => {
+        const scoped = await getScopedSlotsForPopup(options, activeTab);
+        return buildPopupState(
+          scoped.slots,
+          options,
+          commands,
+          platformOs,
+          activeTab?.id ?? null,
+          scoped.activeWindowId
+        );
+      });
 
     case "assign-slot":
       return getActiveTab().then(tab => assignSlot(message.slot, tab));
@@ -869,10 +1413,19 @@ browser.runtime.onMessage.addListener((message) => {
       );
 
     case "clear-all-slots":
-      return clearAllSlots({ showDesktopNotification: true });
+      return clearAllSlots({
+        showDesktopNotification: true,
+        allWindows: Boolean(message.allWindows)
+      });
 
     case "save-options":
       return saveOptions(message.options || {});
+
+    case "change-slot-scope":
+      return requestSlotScopeChange(message.slotScope);
+
+    case "confirm-slot-scope-change":
+      return confirmSlotScopeChange(message.slotScope, message.keepWindowId);
 
     case "open-shortcut-settings":
       return openShortcutSettings();
@@ -945,8 +1498,8 @@ async function openShortcutSettings() {
 }
 
 browser.runtime.onStartup.addListener(async () => {
-  // v1 intentionally treats assignments as live-session state, not restored session state.
-  await clearAllSlots();
+  // TabJump intentionally treats assignments as live-session state, not restored session state.
+  await clearAllSlots({ allWindows: true });
 });
 
 browser.runtime.onInstalled.addListener(async () => {

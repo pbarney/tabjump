@@ -15,6 +15,8 @@ const targets = {
 const sharedFiles = [
   "background.js",
   "platform.js",
+  
+  "style.css",
 
   "popup.html",
   "popup.js",

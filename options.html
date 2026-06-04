@@ -16,10 +16,22 @@
         <input type="radio" name="slot-scope" value="global" checked>
         Global across all windows
       </label>
-      <label class="disabled">
-        <input type="radio" name="slot-scope" value="per-window" disabled>
-        Per-window slots (roadmap)
+      <label>
+        <input type="radio" name="slot-scope" value="per-window">
+        Per-window slots
       </label>
+
+      <div id="scope-switch-confirm" class="scope-switch-confirm" hidden>
+        <p>Switching to Global slots will keep the assignments from one window and clear assignments from the others.</p>
+        <label>
+          Keep assignments from:
+          <select id="scope-keep-window"></select>
+        </label>
+        <div class="scope-switch-actions">
+          <button id="confirm-scope-switch" type="button">Switch to Global</button>
+          <button id="cancel-scope-switch" type="button">Cancel</button>
+        </div>
+      </div>
     </section>
 
     <section>
@@ -35,7 +47,7 @@
         <input id="show-tst-badges" type="checkbox">
         Show Jump Slot badges in Tree Style Tab
       </label>
-</section>
+    </section>
 
     <section>
       <h2>Feedback</h2>

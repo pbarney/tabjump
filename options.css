@@ -25,3 +25,21 @@ section {
     border-bottom: none;
   }
 }
+.scope-switch-confirm {
+  margin-block-start: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, CanvasText 4%, transparent);
+
+  & select {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin-block-start: 6px;
+  }
+}
+
+.scope-switch-actions {
+  margin-block-start: 10px;
+}

@@ -411,8 +411,11 @@ document.getElementById("unassign-current").addEventListener("click", async () =
 
 document.getElementById("clear-all").addEventListener("click", async () => {
   clearShortcutMode();
-  await send("clear-all-slots");
-  setStatus("All slots cleared.");
+  const result = await send("clear-all-slots", { allWindows: false });
+  setStatus(result?.scope === "per-window"
+    ? "Current-window slots cleared."
+    : "All slots cleared."
+  );
   await load();
 });
 

@@ -100,3 +100,40 @@
 ## v0.1.8 suggested changes:
 
 - Onboarding process that explains the extension and how to assign the rest of the keys for Chrome users.
+
+## v0.2.0 changes
+
+- Added "per-window" slot assignments option (as opposed to previous "global slot"-only assignments)
+  background.js
+    Added windowSlots storage.
+    Added scope-aware assignment, unassignment, jumping, pruning, snapshot updating, and TST badge lookup.
+    Added explicit migrations:
+      migrateGlobalToPerWindow()
+      migratePerWindowToGlobal(keepWindowId)
+    Added per-window → global choice handling:
+      getPerWindowToGlobalChoices()
+      requestSlotScopeChange()
+      confirmSlotScopeChange()
+    Added moved-tab behavior:
+      moved tab keeps its slot
+      target-window slot conflict is displaced
+      notification uses: Slot 3 reassigned to moved tab.
+    Changed popup state to expose only the active scope’s slots.
+    Made Options “clear all” able to clear all windows, while popup “Clear All” clears the current window in per-window mode.
+    Fixed the TST CSS semicolon in this copy too.
+  options.html
+    Enabled the per-window radio option.
+    Added the per-window → global confirmation panel with dropdown.
+  options.js
+    Scope changes now go through background migration messages.
+    Ordinary option saves intentionally do not change slotScope.
+    Per-window → global with 2+ assigned windows opens the dropdown chooser.
+    Cancel restores the previous selected scope.
+  options.css
+    Added basic styling for the global-switch confirmation panel.
+  popup.js
+    Popup “Clear All” now sends { allWindows: false }.
+    In per-window mode, the status says: Current-window slots cleared.
+  Manifests
+    Updated root manifest.json and manifest.chrome.json to 0.2.0.
+    deprecated manifest.firefox.json
