@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting Started with TabJump</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/menu-path.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-logo">
+        <img src="assets\icon-128.png">
+      </div>
+      <p class="eyebrow">TabJump privacy policy</p>
+      <h1>Privacy Policy for TabJump</h1>
+      <p class="subtitle">No analytics. No telemetry. No remote servers. Local browser storage only.</p>
+      <div class="hero-meta" aria-label="Policy metadata">
+        Effective date: June 4, 2026
+      </div>
+      <div class="hero-actions" aria-label="Page shortcuts">
+        <a class="button primary" href="index.html">Documentation</a>
+      </div>
+   </div>
+  </header>
+
+  <section class="summary-grid" aria-label="Key privacy points">
+    <div class="summary-card">
+      <strong>Local storage only</strong>
+      <span>Tab assignments are stored in Firefox using <code>browser.storage.local</code>.</span>
+    </div>
+    <div class="summary-card">
+      <strong>No network requests</strong>
+      <span>The add-on does not contact servers, APIs, analytics tools, or remote config services.</span>
+    </div>
+    <div class="summary-card">
+      <strong>No data sharing</strong>
+      <span>Stored tab data is not sold, shared, transferred, or disclosed by TabJump.</span>
+    </div>
+  </section>
+
+  <div class="page">
+    <nav class="toc" aria-labelledby="toc-heading">
+      <h2 id="toc-heading">Contents</h2>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#stored-data">Stored data</a></li>
+        <li><a href="#local-only">Local only</a></li>
+        <li><a href="#permissions">Permissions</a></li>
+        <li><a href="#private-browsing">Private browsing</a></li>
+        <li><a href="#removal">Data removal</a></li>
+        <li><a href="#scope">Scope</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <main id="main">
+        <section class="section" id="overview">
+          <h2>Overview</h2>
+          <p>
+            TabJump is a Firefox add-on developed by pbarney. It is designed to help users assign
+            jump shortcuts to currently open browser tabs.
+          </p>
+          <p>
+            This privacy policy applies only to the TabJump Firefox add-on.
+          </p>
+        </section>
+
+        <section class="section" id="stored-data">
+          <h2>Data stored by TabJump</h2>
+          <p>
+            TabJump stores data locally in your browser using <code>browser.storage.local</code>.
+          </p>
+          <p>
+            When you assign a tab to a jump slot, TabJump may store the following information locally:
+          </p>
+
+          <ul class="plain-list">
+            <li>tab ID</li>
+            <li>window ID</li>
+            <li>tab title</li>
+            <li>tab URL</li>
+            <li>favicon image data</li>
+            <li>whether the tab is pinned</li>
+            <li>whether the tab is incognito or private</li>
+            <li>the time the tab was assigned</li>
+          </ul>
+
+          <div class="note">
+            <strong>Why this data is stored</strong>
+            <p>
+              This information is used only to remember your tab assignments and related add-on settings.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="local-only">
+          <h2>Local storage only</h2>
+          <p>
+            TabJump does not transmit locally stored tab-assignment information to the developer,
+            to Mozilla, to GitHub, or to any other server.
+          </p>
+
+          <div class="grid" aria-label="Things TabJump does not do">
+            <div class="mini-card">
+              <strong>No network requests</strong>
+              <p><span>TabJump does not make network requests.</span></p>
+            </div>
+            <div class="mini-card">
+              <strong>No analytics</strong>
+              <p><span>TabJump does not use analytics, telemetry, or tracking.</span></p>
+            </div>
+            <div class="mini-card">
+              <strong>No crash reporting</strong>
+              <p><span>TabJump does not send diagnostic data to a remote service.</span></p>
+            </div>
+            <div class="mini-card">
+              <strong>No external APIs</strong>
+              <p><span>TabJump does not use remote configuration or external APIs.</span></p>
+            </div>
+          </div>
+
+          <p>
+            TabJump does not sell, share, transfer, or disclose user data.
+          </p>
+        </section>
+
+        <section class="section" id="permissions">
+          <h2>Permissions</h2>
+          <p>
+            TabJump uses the following Firefox extension permissions only for the add-on’s stated functionality.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Permission</th>
+                  <th scope="col">Why it is used</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>tabs</code></td>
+                  <td>
+                    Used to read open-tab information needed for assigning and jumping to tabs,
+                    including tab IDs, titles, URLs, and window IDs.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>storage</code></td>
+                  <td>
+                    Used to store tab assignments and settings locally in your browser.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>menus</code></td>
+                  <td>
+                    Used to provide TabJump actions in Firefox context menus.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>notifications</code></td>
+                  <td>
+                    Used to show optional desktop notifications related to tab assignments.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="private-browsing">
+          <h2>Private browsing</h2>
+          <p>
+            If TabJump is allowed to run in private browsing windows, it may store local tab-assignment
+            information for tabs assigned while using private browsing, including the fact that the tab
+            was marked as private or incognito.
+          </p>
+          <p>
+            TabJump does not transmit this information anywhere.
+          </p>
+        </section>
+
+        <section class="section" id="removal">
+          <h2>Data removal</h2>
+          <p>
+            You can remove TabJump’s locally stored data by using the add-on’s "Clear All Jump Slots" option,
+            or by uninstalling the add-on from Firefox.
+          </p>
+        </section>
+
+        <section class="section" id="scope">
+          <h2>Website and support scope</h2>
+          <p>
+            This policy applies only to the TabJump Firefox add-on. It does not cover third-party
+            websites, GitHub, GitHub Pages, email providers, Mozilla services, or other services
+            outside the add-on.
+          </p>
+        </section>
+
+        <section class="section" id="contact">
+          <h2>Contact</h2>
+          <p>
+            For support-related questions, contact
+            <a href="mailto:tabjump@forgedigital.design">tabjump@forgedigital.design</a>.
+          </p>
+        </section>
+
+    </main>
+  </div>
+  
+  <footer class="footer">
+    <p class="footer">TabJump: Shortcuts for Open Tabs. This page covers the v0.2.1 user experience.</p>
+  </footer>
+</body>
+</html>

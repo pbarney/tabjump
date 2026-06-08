@@ -1,0 +1,205 @@
+.menu-figure {
+  margin: 1.5rem 0;
+  width: fit-content;
+}
+
+.menu-figure figcaption {
+  margin-block-start: 1.25rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+  text-align: center;
+}
+
+.menu-path {
+  --row-height: 2rem;
+  --menu-bg: #f3f4f6;
+  --menu-bg: #f9f9fb;
+  --menu-border: #c5c9d0;
+  --menu-text: #1f2937;
+  --selected-bg: #dbeafe;
+  --selected-bg: #e0e0e6;
+  --selected-accent: #2563eb;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+
+  font: 14px/1.2 system-ui, sans-serif;
+  color: var(--menu-text);
+
+  .ctx-menu {
+    --menu-radius: 0.45rem;
+    --menu-border-width: 1px;
+
+    /*
+      Slightly smaller than the outer radius because the child sits
+      inside the border rather than outside it.
+    */
+    --menu-inner-radius: calc(var(--menu-radius) - var(--menu-border-width));
+
+    inline-size: auto;
+    min-inline-size: var(--width, 10rem);
+    max-inline-size: var(--width, 13rem);
+
+    margin: 0;
+    /* 1.17 fudge factor required */
+    margin-block-start: calc(var(--offset, 0) * 1.17 * var(--row-height));
+    padding: 0;
+
+    list-style: none;
+    background: var(--menu-bg);
+    border: var(--menu-border-width) solid var(--menu-border);
+    border-radius: var(--menu-radius);
+    box-shadow: 0 0.35rem 1rem rgb(0 0 0 / 0.14);
+
+    &.continued-to-bottom {
+      --fade-height: 2em;
+      --fade-bg: white;
+
+      position: relative;
+
+      border-bottom: 0;
+      border-end-start-radius: 0;
+      border-end-end-radius: 0;
+
+      > li:last-child {
+        border-end-start-radius: var(--menu-inner-radius);
+        border-end-end-radius: var(--menu-inner-radius);
+        
+        ::after {
+          position: absolute;
+          display: block;
+          content: "...";
+          left: 50%;
+          transform: translatex(-50%);
+          bottom: 0;
+        }
+      }
+      
+      &::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+
+        /* Extend over the border */
+        inset-inline: calc(0px - var(--menu-border-width));
+        inset-block-end: calc(0px - var(--menu-border-width));
+
+        block-size: calc(var(--fade-height) + var(--menu-border-width));
+
+        background: linear-gradient(
+          to top,
+          var(--fade-bg),
+          transparent
+        );
+      }
+    }
+    
+    &.continued-from-top {
+      --fade-height: 2em;
+      --fade-bg: white;
+
+      position: relative;
+
+      border-top: 0;
+      border-start-start-radius: 0;
+      border-start-end-radius: 0;
+
+      > li:first-child {
+        border-start-start-radius: var(--menu-inner-radius);
+        border-start-end-radius: var(--menu-inner-radius);
+        
+        ::before {
+          position: absolute;
+          display: block;
+          content: "...";
+          left: 50%;
+          transform: translatex(-50%);
+          top: -7px;
+        }
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+
+        /* Extend over the border */
+        inset-inline: calc(0px - var(--menu-border-width));
+        inset-block-start: calc(0px - var(--menu-border-width));
+
+        block-size: calc(var(--fade-height) + var(--menu-border-width));
+
+        background: linear-gradient(
+          to bottom,
+          var(--fade-bg),
+          transparent
+        );
+      }
+    }
+
+    li {
+      box-sizing: border-box;
+      min-block-size: var(--row-height);
+      padding: 0 0.65rem;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+
+      /* border-block-end: 1px solid rgb(0 0 0 / 0.08); */
+      white-space: nowrap;
+
+      .menu-label {
+        min-inline-size: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      &:last-child {
+        border-block-end: 0;
+      }
+
+      &.is-selected {
+        background: var(--selected-bg);
+        /* box-shadow: inset 3px 0 var(--selected-accent); */
+        font-weight: 500;
+      }
+      
+      &.is-disabled {
+        color: #5b6472;
+        color: #aaa;
+        color: #aab3c4;
+      }
+
+      &.has-submenu::after {
+        content: "›";
+        margin-inline-start: auto;
+        color: #4b5563;
+      }
+    }
+  }
+
+  .menu-arrow {
+    margin-block-start: calc(
+      (var(--offset, 0) * var(--row-height)) +
+      (var(--row-height) / 2) +
+      0.6em
+    );
+
+    inline-size: 1.25rem;
+    display: inline-grid;
+    place-items: center;
+
+    font-weight: 700;
+    color: #5b6472;
+    
+    &::after {
+      content: " → ";
+    }
+  }
+}

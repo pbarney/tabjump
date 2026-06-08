@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting Started with TabJump</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/menu-path.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-logo">
+        <img src="assets\icon-128.png">
+      </div>
+      <p class="eyebrow">TabJump documentation</p>
+      <h1>Getting Started with TabJump</h1>
+      <p class="subtitle">TabJump lets you assign temporary jump slots to open tabs, then switch to those tabs quickly by keyboard shortcuts, from a popup panel, or Firefox tab context menus.</p>
+      <div class="hero-actions" aria-label="Page shortcuts">
+        <a class="button primary" href="#quick-start">Quick setup</a>
+        <a class="button" href="#popup-workflow">Learn the popup workflow</a>
+        <a class="button" href="#troubleshooting">Troubleshooting</a>
+        <a class="button" href="https://github.com/pbarney/tabjump/issues">Bug Reports / Feature Requests</a>
+        <a class="button" href="privacy-policy.html">Privacy Policy</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <nav class="toc" aria-labelledby="toc-heading">
+      <h2 id="toc-heading">Contents</h2>
+      <ol>
+        <li><a href="#quick-start">Quick start</a></li>
+        <li><a href="#concepts">Core concepts</a></li>
+        <li><a href="#install">Install TabJump</a></li>
+        <li><a href="#first-run">First run</a></li>
+        <li><a href="#configure">Configure options</a></li>
+        <li><a href="#popup-workflow">Using the popup</a></li>
+        <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+        <li><a href="#context-menu">Firefox tab context menu</a></li>
+        <li><a href="#tree-style-tab">Tree Style Tab badges</a></li>
+        <li><a href="#slot-scope">Global and per-window slots</a></li>
+        <li><a href="#state-and-privacy">State and privacy</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ol>
+    </nav>
+
+    <main id="main">
+      <section id="quick-start">
+        <h2>Quick start for Firefox</h2>
+        <p class="lead">Install TabJump, open several tabs, assign one or more tabs to slots, then jump between them using the shortcut keys or the popup menu.</p>
+        
+        <div style="display: flex; gap: 1rem;">
+          <div style="flex: 1">
+            <h3>Using the Keyboard</h3>
+            <ol class="steps">
+              <li><span class="header">Assign the current tab.</span> Press one of the pre-configured assignment keys to assign the current tab to a jumpslot.</li>
+              <li><span class="header">Assign other tabs.</span> Repeat the previous step, assigning additional tabs to other jumpslots.</li>
+              <li><span class="header">Jump to an assigned tab.</span> Press one of your assigned shortcuts to jump to the desired tab. If you are using Tree Style Tab, it will be easy to identify which tabs are assigned to jumpslots. But if you aren't, you can always open the popup screen to see which tabs are currently assigned.</li>
+              <li><span class="header">Adjust shortcuts and options.</span> Open <strong>Options</strong> from the popup, then use <strong>Manage Extension Shortcuts</strong> if you want global keyboard shortcuts.</li>
+            </ol>
+          </div>
+          <div style="flex: 1">
+            <h3>Using the Popup Menu</h3>
+            <ol class="steps">
+              <li><span class="header">Open the TabJump popup.</span> Click the TabJump toolbar button, or use the open-popup shortcut if it is assigned (<kbd>Alt</kbd> + <kbd>J</kbd> for Windows/Linux or <kbd>Ctrl</kbd> + <kbd>J</kbd> for MacOS).</li>
+              <li><span class="header">Assign the current tab.</span> Click <strong>Assign</strong> next to a slot, or press <kbd>A</kbd> and then a number from <kbd>1</kbd> to <kbd>9</kbd> while the popup is open.</li>
+              <li><span class="header">Jump to an assigned tab.</span> Click the slot number, or press a number from <kbd>1</kbd> to <kbd>9</kbd> while the popup is open.</li>
+              <li><span class="header">Adjust shortcuts and options.</span> Open <strong>Options</strong> from the popup, then use <strong>Manage Extension Shortcuts</strong> if you want global keyboard shortcuts.</li>
+            </ol>
+          </div>
+        </div>
+        <div class="success">
+          <strong>Best first habit</strong>
+          Using the keyboard is by far the fastest way to switch between tabs. Get used to using 
+          Open the popup and use its local shortcuts. They work consistently in Firefox, Chrome and Chromium browsers without needing page permissions or page modification.
+        </div>
+      </section>
+
+      <section id="concepts">
+        <h2>Core concepts</h2>
+        <div class="grid">
+          <div class="mini-card">
+            <h3>Jump slots</h3>
+            <p>A jump slot is a temporary shortcut, numbered <kbd>1</kbd> through <kbd>9</kbd>, which can be assigned to any open tab, accessible via a shortcut key. Slot 2 can point to your issue tracker, Slot 3 can point to documentation and Slot 4 can point to a local test page, etc.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Temporary by design</h3>
+            <p>TabJump is for the set of tabs you're actively working with in the moment, and you can redefine that set of tabs as you go about your work. They are not intended to be long-term shortcuts, so closing an assigned tab clears that slot and restarting the browser clears all slots.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Keyboard-first...</h3>
+            <p>Assign your tabs with a quick assignment shortcut key, and jump to them as needed using the associated jump shortcut key. This is very fast and very efficient.</p>
+            <p>There is also a shortcut panel if you prefer something more visual.</p>
+
+<!--
+            <h4>for Firefox with TST or Power Users</h4>
+            <p>Although TabJump works best with the <a href="https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/">Tree Style Tab</a> (<abbr>TST</abbr>) vertical tab add-on, TST is not required.</p>
+            <h3>Popup-first...</h3>
+            <h4>for Chrome and non-TST Firefox users:</h4>
+            <p>If you don't use TST, it may be difficult to remember exactly which tabs you've assigned to which slots, so as a backup, the popup shows an instantly-accessible list of your current assignments and includes fast local keyboard shortcuts. This is the recommended workflow for Chrome and for Firefox users who do not use Tree Style Tab.</p>
+-->            
+          </div>
+          <div class="mini-card">
+            <h3>Optional Slot Number Badges</h3>
+            <p>TabJump works best with the <a href="https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/">Tree Style Tab</a> (<abbr>TST</abbr>) vertical tab add-on, which can optionally show <strong>visual slot badges</strong> in the TST sidebar. For example, press <span class="key-combo"><kbd>Alt</kbd>+<kbd>5</kbd></span> to access this tab:</p>
+            <figure>
+              <img src="assets/tree-style-tab-badge.png" width="258" height="43" alt="Tree Style Tab slot badge example">
+              <!-- figcaption>For example, this tab has been assigned to jump slot 5, accessible via <span class="key-combo"><kbd>Alt</kbd>+<kbd>5</kbd></span></figcaption -->
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Install TabJump</h2>
+        <h3>Install from Firefox Add-ons</h3>
+        <ol>
+          <li>Open the <a href="https://addons.mozilla.org/en-US/firefox/addon/tabjump/">TabJump listing</a> on Firefox Add-ons.</li>
+          <li>Choose <strong>Add to Firefox</strong>.</li>
+          <li>Confirm the permission prompt.</li>
+          <li>After installation, keep the toolbar button visible if you plan to use the popup often.</li>
+        </ol>
+      </section>
+
+      <section id="first-run">
+        <h2>First run</h2>
+        <p>After installing TabJump, start by opening a few ordinary web tabs. The add-on is easiest to understand when you have several real tabs open.</p>
+        <ol class="steps">
+          <li><strong>Open the toolbar popup.</strong> Click the TabJump toolbar icon. If you do not see it, open your browser’s extensions menu and pin or show TabJump on the toolbar.</li>
+          <li><strong>Assign your first slot.</strong> Go to a tab you want to revisit, open the popup, then use <strong>Assign</strong> beside Slot 1.</li>
+          <li><strong>Assign a second slot.</strong> Switch to another tab and assign Slot 2.</li>
+          <li><strong>Jump back and forth.</strong> Open the popup and press <kbd>1</kbd> or <kbd>2</kbd>. The popup jumps to the selected tab and closes.</li>
+        </ol>
+
+        <h3>Example Jump Slots:</h3>
+        <figure id="slots" class="slots" aria-label="Example jump slots">
+          <div class="slot">
+            <button type="button" class="slot-badge" disabled="disabled" title="Jump to Slot 1" aria-label="Jump to Slot 1">1</button>
+            <div class="slot-details">
+              <div class="slot-title" title="GitHub Project">GitHub Project</div>
+              <div class="slot-url" title="https://github.com/pbarney/tabjump">https://github.com/pbarney/tabjump</div>
+            </div>
+            <button type="button" disabled="disabled" title="Unassign Slot 1" aria-label="Unassign Slot 1">Unassign</button></div>
+          <div class="slot">
+            <button type="button" class="slot-badge" disabled="disabled" title="Jump to Slot 2" aria-label="Jump to Slot 2">2</button>
+            <div class="slot-details">
+              <div class="slot-title" title="Documentation">Documentation</div>
+              <div class="slot-url" title="https://example.com/documentation/">https://example.com/documentation/</div>
+            </div>
+            <button type="button" disabled="disabled" title="Unassign Slot 2" aria-label="Unassign Slot 2">Unassign</button></div>
+          <div class="slot">
+            <button type="button" class="slot-badge" disabled="disabled" title="Jump to Slot 3" aria-label="Jump to Slot 3">3</button>
+            <div class="slot-details">
+              <div class="slot-title" title="Team Chat">Team Chat</div>
+              <div class="slot-url" title="https://example.com/team-chat/">https://example.com/team-chat/</div>
+            </div>
+            <button type="button" disabled="disabled" title="Unassign Slot 3" aria-label="Unassign Slot 3">Unassign</button></div>
+          <div class="slot empty">
+            <button type="button" class="slot-badge disabled" disabled="disabled" title="Slot 4 is empty" aria-label="Slot 4 is empty">4</button>
+            <div class="slot-details">
+              <div class="slot-title">Slot 4 is empty</div>
+              <div class="slot-url">Jump: Alt+4 · Assign: Alt+Shift+4</div>
+            </div>
+            <button type="button" disabled="disabled" title="Assign current tab to Slot 4" aria-label="Assign current tab to Slot 4">Assign</button></div>
+        </figure>
+      </section>
+
+      <section id="configure">
+        <h2>Configure options</h2>
+        <p>Open the popup and choose <strong>Options</strong>, or use your browser’s extension management page to open TabJump’s options page.</p>
+
+        <h3>Slot Scope</h3>
+        <p>Choose whether slots are shared across all windows or separated by browser window.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>What it does</th>
+              <th>Good for</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Global across all windows</strong></td>
+              <td>One set of Slots 1-9 for the whole browser.</td>
+              <td>Simple workflows where you want Slot 1 to mean the same thing everywhere.</td>
+            </tr>
+            <tr>
+              <td><strong>Per-window slots</strong></td>
+              <td>Each browser window gets its own Slots 1-9.</td>
+              <td>Separate projects, research sessions, or workspaces in different windows.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Shortcuts</h3>
+        <p>The <strong>Manage Extension Shortcuts</strong> button opens your browser’s shortcut-management page. Use it to change or restore global keyboard shortcuts.</p>
+        <p>The <strong>Open Popup as Tab</strong> button opens the popup as a normal browser tab. This is useful when reading the built-in help or testing the popup while developer tools are open.</p>
+
+        <h3>Tree Style Tab Badges</h3>
+        <p>In Firefox, TabJump can show slot badges inside the Tree Style Tab sidebar. This option is hidden or disabled in browsers that do not support the Tree Style Tab integration.</p>
+
+        <h3>Feedback</h3>
+        <ul>
+          <li><strong>Briefly flash tab assignments on the TabJump toolbar icon</strong> shows short toolbar badge feedback after assignment changes.</li>
+          <li><strong>Show desktop notifications when assigning or unassigning slots</strong> shows system notifications for assignment feedback when supported by the browser and operating system.</li>
+        </ul>
+
+        <h3>Data</h3>
+        <p><strong>Clear All Jump Slots</strong> removes all current slot assignments. It does not close tabs and does not delete browsing history.</p>
+      </section>
+
+      <section id="popup-workflow">
+        <h2>Using the popup</h2>
+        <p class="lead">The popup is the main TabJump interface. It works in Firefox, Chrome and Chromium.</p>
+
+        <h3>Mouse workflow</h3>
+        <ul>
+          <li>Open the popup (typically with <span class="key-combo"><kbd>Alt</kbd>-<kbd>J</kbd></span></li>
+          <li>Click a slot number to jump to that assigned tab.</li>
+          <li>Click <strong>Assign</strong> to assign the current tab to that slot.</li>
+          <li>Click <strong>Unassign</strong> to clear that slot.</li>
+          <li>Click <strong>Unassign Current Tab</strong> to remove the current tab from whatever slot it occupies.</li>
+          <li>Click <strong>Clear All</strong> to clear the visible assignment set. In per-window mode, this clears the current window’s slots.</li>
+        </ul>
+
+        <h3>Fast popup keyboard workflow</h3>
+        <p>These shortcuts work only while the TabJump popup is open.</p>
+        <div class="shortcut-grid" role="list" aria-label="Popup keyboard shortcut cards">
+          <div class="shortcut-card" role="listitem">
+            <strong>Jump to Slot</strong>
+            <kbd>1</kbd>-<kbd>9</kbd>
+          </div>
+          <div class="shortcut-card" role="listitem">
+            <strong>Assign current tab</strong>
+            <kbd>A</kbd> then <kbd>1</kbd>-<kbd>9</kbd>
+          </div>
+          <div class="shortcut-card" role="listitem">
+            <strong>Unassign slot</strong>
+            <kbd>U</kbd> then <kbd>1</kbd>-<kbd>9</kbd>
+          </div>
+          <div class="shortcut-card" role="listitem">
+            <strong>Unassign current tab</strong>
+            <kbd>U</kbd> then <kbd>0</kbd>
+          </div>
+        </div>
+
+        <!-- div class="flow" aria-label="Popup workflow diagram">
+          <div class="flow-node"><strong>Open the TabJump popup</strong></div>
+          <div class="flow-branches">
+            <div class="flow-branch"><strong>Press 1-9</strong>Jump to the tab assigned to that slot.</div>
+            <div class="flow-branch"><strong>Press A, then 1-9</strong>Assign the current tab to that slot.</div>
+            <div class="flow-branch"><strong>Press U, then 1-9</strong>Unassign that slot.</div>
+            <div class="flow-branch"><strong>Press U, then 0</strong>Unassign the current tab.</div>
+          </div>
+        </div -->
+
+        <h3>Other popup shortcuts</h3>
+        <ul>
+          <li><kbd>H</kbd> toggles Help and Back.</li>
+          <li><kbd>O</kbd> opens Options.</li>
+          <li><kbd>Escape</kbd> cancels the current popup shortcut mode or closes the help view.</li>
+        </ul>
+
+        <div class="note">
+          <strong>Current tab highlighting</strong>
+          If the current tab is already assigned to a slot, the popup highlights that slot so you can quickly see where you are.
+        </div>
+      </section>
+
+      <section id="keyboard-shortcuts">
+        <h2>Keyboard shortcuts</h2>
+        <p>TabJump has two kinds of keyboard shortcuts: shortcuts in the popup and browser-level shortcuts.</p>
+
+        <h3>Popup shortcuts</h3>
+        <p>Popup-local shortcuts are the most predictable way to use TabJump from the keyboard. See <a href="#popup-workflow">Using the Popup</a> for more information.</p>
+
+        <h3>Browser shortcuts</h3>
+        <p>Browser-level shortcuts are the fastest way to navigate around your jump slots, and work even when the popup is closed. While defaults are set when you install the extension, the browser ultimately controls which shortcuts are available; so if a shortcut does not work, open <strong>Manage Extension Shortcuts</strong> and assign a different key combination.</p>
+
+        <h4>Firefox default shortcuts</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Windows/default</th>
+              <th>Linux</th>
+              <th>macOS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Open TabJump popup</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>J</kbd></td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>J</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>J</kbd></td>
+            </tr>
+            <tr>
+              <td>Jump to Slot 1-9</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+            </tr>
+            <tr>
+              <td>Assign current tab to Slot 1-9</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> ... <kbd>9</kbd></td>
+            </tr>
+            <tr>
+              <td>Unassign current tab</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Chrome and Chromium shortcuts</h4>
+        <p>Chrome (and other Chromium-based browsers) only allow four default shortcut keys for any extension, so you will need to assign yours manually. Open <code><a href="chrome://extensions/shortcuts">chrome://extensions/shortcuts</a></code>, find TabJump, then set the shortcuts you want. <strong>It is <em>highty</em> suggested that you assign your additional shortcut keys to the other slots to maximize your experience.</strong></strong></p>
+        <p>Here are the four allowed defaults:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Windows/default</th>
+              <th>Linux</th>
+              <th>macOS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Open TabJump popup</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>J</kbd></td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>J</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>J</kbd></td>
+            </tr>
+            <tr>
+              <td>Jump to Slot 1</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>1</kbd></td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>1</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>1</kbd></td>
+            </tr>
+            <tr>
+              <td>Assign current tab to Slot 1</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd></td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd></td>
+            </tr>
+            <tr>
+              <td>Unassign current tab</td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+              <td class="nowrap"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+              <td class="nowrap"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="warning">
+          <strong>If a shortcut is unavailable</strong>
+          The browser, operating system, desktop environment, or another extension may already use it. Choose a different combination in the shortcut settings page.
+        </div>
+      </section>
+
+      <section id="context-menu">
+        <h2>Firefox tab context menu</h2>
+        <p>In Firefox, TabJump adds tab context-menu entries. Right-click a browser tab to use them.</p>
+
+        <h3>When the tab is not assigned</h3>
+        <p>The menu shows a direct assignment flow:</p>
+
+        <figure class="menu-figure">
+          <div class="menu-path" aria-label="Context menu path: TabJump: Assign to Jump Slot, Slot number">
+            <ul class="ctx-menu continued-from-top" style="--offset: 0; --width: 16.5em;">
+              <li><span class="menu-item"><u>C</u>lose tab</span></li>
+              <li class="is-disabled"><span class="menu-item">Close D<u>u</u>plicate Tabs</span></li>
+              <li><span class="menu-item">Close <u>M</u>ultiple Tabs</span></li>
+              <li class="is-selected has-submenu"><span class="menu-item">TabJump: Assign to Jump Slot</span></li>
+            </ul>
+
+            <span class="menu-arrow" style="--offset: 3;" aria-hidden="true"></span>
+
+            <ul class="ctx-menu continued-to-bottom" style="--offset: 1; --width: 4.5em;">
+              <li><span class="menu-item">Slot 1</span></li>
+              <li><span class="menu-item">Slot 2</span></li>
+              <li><span class="menu-item">Slot 3</span></li>
+            </ul>
+          </div>
+
+          <figcaption>TabJump: Assign to Jump Slot → Slot 1–9</figcaption>
+        </figure>
+        
+        <h3>When the tab is already assigned</h3>
+        <p>The menu groups TabJump actions together and marks the current slot:</p>
+
+        <figure class="menu-figure">
+          <div class="menu-path" aria-label="Context menu path: TabJump, Assign to Jump Slot → Slot 1–9">
+            <ul class="ctx-menu continued-from-top" style="--offset: 0;">
+              <li><span class="menu-item"><u>C</u>lose tab</span></li>
+              <li class="is-disabled"><span class="menu-item">Close D<u>u</u>plicate Tabs</span></li>
+              <li><span class="menu-item">Close <u>M</u>ultiple Tabs</span></li>
+              <li class="is-selected has-submenu"><span class="menu-item">TabJump</span></li>
+            </ul>
+
+            <span class="menu-arrow" style="--offset: 3;" aria-hidden="true"></span>
+
+            <ul class="ctx-menu" style="--offset: 3;">
+              <li class="is-selected has-submenu"><span class="menu-item">Assign to Jump Slot</span></li>
+              <li><span class="menu-item">Unassign this tab</span></li>
+            </ul>
+
+            <span class="menu-arrow" style="--offset: 3;" aria-hidden="true"></span>
+
+            <ul class="ctx-menu continued-to-bottom" style="--offset: 2; --width: 9em;">
+              <li><span class="menu-item">Slot 1</span></li>
+              <li><span class="menu-item">✓ Slot 2, current</span></li>
+              <li><span class="menu-item">Slot 3</span></li>
+            </ul>
+          </div>
+
+          <figcaption>TabJump → Assign to Jump Slot → Slot 1–9</figcaption>
+        </figure>
+
+        <div class="note">
+          <strong>Chrome and Chromium note</strong>
+          The polished tab context-menu workflow is Firefox-focused. In Chrome and Chromium, use the toolbar popup as the main workflow.
+        </div>
+      </section>
+
+      <section id="tree-style-tab">
+        <h2>Tree Style Tab badges</h2>
+        <p>Firefox users who use Tree Style Tab can enable slot badges in the Tree Style Tab sidebar. These badges show the slot number beside assigned tabs.</p>
+        <ol>
+          <li>Install and enable Tree Style Tab in Firefox.</li>
+          <li>Open TabJump Options.</li>
+          <li>Enable <strong>Show Jump Slot badges in Tree Style Tab</strong>.</li>
+          <li>Assign a tab to a slot. The matching TST sidebar tab should show a compact badge.</li>
+        </ol>
+        <div class="note">
+          <strong>If badges do not appear</strong>
+          Make sure Tree Style Tab is installed, its sidebar is visible and the TabJump badge option is enabled. TabJump still works without TST badges.
+        </div>
+      </section>
+
+      <section id="slot-scope">
+        <h2>Global and per-window slots</h2>
+        <p>Slot scope controls whether slots are assigned to <em>individual</em> windows or to <em>all</em> windows.</p>
+
+        <h3>Global slots</h3>
+        <p>Global mode gives the whole browser one Slot 1, one Slot 2 and so on. If Slot 1 points to a tab in Window A, pressing Slot 1 from Window B still jumps to that tab in Window A.</p>
+
+        <h3>Per-window slots</h3>
+        <p>Per-window mode gives each browser window its own Slot 1-9 map. Slot 1 in Window A can point to a documentation tab, while Slot 1 in Window B can point to a different tab for another project.</p>
+
+        <h3>Moving assigned tabs between windows</h3>
+        <p>In per-window mode, a moved tab keeps its slot number. If the target window already has that slot assigned, the moved tab takes over that slot in the target window.</p>
+
+        <h3>Rules when Switching the Options Setting between Global and Per-Window</h3>
+        <h4>Switching from Global to Per-window</h4>
+        <p>TabJump distributes existing global assignments into the windows where those tabs are actually assigned.</p>
+
+        <h4>Switching from Per-window to Global</h4>
+        <p>If only one window has assignments, TabJump keeps that window’s assignments automatically. If multiple windows have assignments, TabJump asks which window’s assignments should become the global assignments. Assignments from the other windows are cleared.</p>
+      </section>
+
+      <section id="state-and-privacy">
+        <h2>Privacy</h2>
+        <p>TabJump is designed around local browser use. It does not need an account, server or cloud sync to work.</p>
+
+        <h3>What is stored locally</h3>
+        <p>TabJump stores options and current jump-slot assignments in browser extension storage on your computer. Assignment records may include the tab ID, window ID, title, URL, favicon URL, pinned/incognito state and assignment time. So be aware that if you use TabJump in private/incognito windows and assign any of their tabs to jump slots, that data will be saved in your storage, potentially available for others to discover.</p>
+
+        <h3>What clears assignments</h3>
+        <ul>
+          <li>Closing an assigned tab clears that tab’s assignment.</li>
+          <li>Using <strong>Clear All</strong> or <strong>Clear All Jump Slots</strong> clears assignments.</li>
+          <li>Restarting the browser clears all assignments.</li>
+          <li>Simple closing a window or the browser may not clear stored assignments until the browser is restarted.</li>
+        </ul>
+
+        <h3>What TabJump does not do</h3>
+        <ul>
+          <li>It does not send your tab data to a server.</li>
+          <li>It does not require an account.</li>
+          <li>It does not modify web page titles.</li>
+          <li>It does not modify page favicons.</li>
+          <li>It does not try to intercept page-defined keyboard shortcuts.</li>
+        </ul>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>Troubleshooting</h2>
+
+        <h3>The keyboard shortcut does not work</h3>
+        <ul>
+          <li>Open TabJump Options and choose <strong>Manage Extension Shortcuts</strong>.</li>
+          <li>Confirm that the command has a shortcut assigned.</li>
+          <li>Try a different shortcut if the browser or operating system already uses that combination.</li>
+          <li>Use the shortcuts in the popup as a fallback. Open the popup, then press <kbd>1</kbd>-<kbd>9</kbd>.</li>
+        </ul>
+
+        <h3>A slot disappeared</h3>
+        <p>Slots are tied to open tabs. If a tab is closed, that assignment is cleared. Browser restart also clears all assignments.</p>
+
+        <h3>Per-window slots are not where I expected</h3>
+        <p>In per-window mode, each window has its own Slot 1-9 map. Make sure you are using the window where the assignment was made. If you want one shared set of slots, switch back to <strong>Global across all windows</strong>.</p>
+
+        <h3>Tree Style Tab badges are missing</h3>
+        <ul>
+          <li>Make sure you are using Firefox.</li>
+          <li>Make sure Tree Style Tab is installed and visible.</li>
+          <li>Open TabJump Options and enable <strong>Show Jump Slot badges in Tree Style Tab</strong>.</li>
+          <li>Try unassigning and reassigning the slot.</li>
+        </ul>
+
+        <h3>Desktop notifications do not appear</h3>
+        <ul>
+          <li>Open TabJump Options and enable <strong>Show desktop notifications when assigning or unassigning slots</strong>.</li>
+          <li>Check your browser and operating-system notification settings.</li>
+          <li>Remember that toolbar/popup feedback will still work even when system notifications are blocked.</li>
+        </ul>
+
+        <h3>I want a completely fresh start</h3>
+        <p>Open Options and choose <strong>Clear All Jump Slots</strong>. This clears TabJump’s current slot assignments without closing tabs.</p>
+      </section>
+
+      <section id="suggested-workflows">
+        <h2>Suggested workflows</h2>
+        <div class="grid">
+          <div class="mini-card">
+            <h3>Developer workflow</h3>
+            <p>Assign Slot 1 to your issue, Slot 2 to documentation, Slot 3 to the app, Slot 4 to browser devtools documentation and Slot 5 to your pull request.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Research workflow</h3>
+            <p>Assign slots to the few sources you keep returning to, such as a search result, a primary source, a note document and a comparison page.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Per-window projects</h3>
+            <p>Use one window for Project A and another for Project B. In per-window mode, Slot 1 can mean a different tab in each project window.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Popup-only workflow</h3>
+            <p>Use one browser-level shortcut to open the popup, then use popup-local shortcuts for everything else. This is simple and avoids fighting browser shortcut conflicts.</p>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer">TabJump: Shortcuts for Open Tabs. This page covers the v0.2.1 user experience.</p>
+    </main>
+  </div>
+</body>
+</html>
