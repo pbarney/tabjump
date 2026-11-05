@@ -138,9 +138,8 @@
     Updated root manifest.json and manifest.chrome.json to 0.2.0.
     deprecated manifest.firefox.json
 
-## v0.2.1 changes
+## v0.2.0.1 - Bug fix
 
-  Popup/options polish
-  Documentation/screenshot/listing prep
-  Chrome/non-TST Firefox popup workflow messaging
-  Context-menu polish
+  - Fixed unreadable text in the popup and Help screen when using dark appearance settings, including Windows dark app mode (Issue #1).
+  - Removed hardcoded text and heading colors from `popup.css`, allowing the shared stylesheet to supply system-aware colors.
+  - Updated README documentation to accurately reflect the current features, including per-window slot assignments.

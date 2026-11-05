@@ -7,3 +7,4 @@
 *.zip
 *.xpi
 *.crx
+.file-descriptions.tsv 
