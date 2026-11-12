@@ -1,8 +1,8 @@
 /*
  * TabJump
- * v0.2.0 development build
+ * v0.3.0 sidebar development build
  *
- * v0.2 scope:
+ * v0.3 scope:
  * - Global or per-window jump slots.
  * - Browser-level extension commands only.
  * - No page-content shortcut interception.
@@ -240,6 +240,25 @@ function buildPopupState(slots, options, commands, platformOs, currentTabId = nu
     ),
     shortcutHelp: buildShortcutHelp(platformOs, environment),
     shortcutDefaults: buildShortcutDefaults(platformOs, environment)
+  };
+}
+
+async function getSidebarState(windowId) {
+  if (!Number.isInteger(windowId) || windowId < 0)
+    throw new Error("Invalid sidebar window ID.");
+
+  const options = await getOptions();
+  const [activeTab] = await browser.tabs.query({ active: true, windowId });
+  const slots = isPerWindowScope(options)
+    ? (await getWindowSlots())[windowKey(windowId)] || emptySlotMap()
+    : await getSlots();
+
+  return {
+    windowId,
+    slotScope: options.slotScope,
+    slotViews: SLOT_IDS.map(slot =>
+      buildSlotView(slot, slots[String(slot)], options, [], activeTab?.id ?? null)
+    )
   };
 }
 
@@ -620,14 +639,14 @@ async function assignSlotPerWindow(slot, targetTab) {
   return scopedSlots[slotKey];
 }
 
-async function unassignSlot(slot) {
+async function unassignSlot(slot, windowId = null) {
   if (!isValidSlot(slot))
     throw new Error(`Invalid slot: ${slot}`);
 
   const options = await getOptions();
 
   if (isPerWindowScope(options)) {
-    const activeWindowId = await getActiveWindowId();
+    const activeWindowId = windowId ?? await getActiveWindowId();
     return unassignSlotPerWindow(slot, activeWindowId);
   }
 
@@ -718,13 +737,13 @@ async function unassignTabPerWindow(tabId) {
   return removed;
 }
 
-async function jumpSlot(slot) {
+async function jumpSlot(slot, windowId = null) {
   if (!isValidSlot(slot))
     throw new Error(`Invalid slot: ${slot}`);
 
   const options = await getOptions();
   const entry = isPerWindowScope(options)
-    ? await getPerWindowJumpEntry(slot)
+    ? await getPerWindowJumpEntry(slot, windowId)
     : (await getSlots())[String(slot)];
 
   if (!entry)
@@ -742,8 +761,8 @@ async function jumpSlot(slot) {
   return true;
 }
 
-async function getPerWindowJumpEntry(slot) {
-  const activeWindowId = await getActiveWindowId();
+async function getPerWindowJumpEntry(slot, windowId = null) {
+  const activeWindowId = windowId ?? await getActiveWindowId();
   if (activeWindowId == null)
     return null;
 
@@ -1476,6 +1495,15 @@ browser.runtime.onMessage.addListener((message) => {
     return;
 
   switch (message.type) {
+    case "get-sidebar-state":
+      return getSidebarState(message.windowId);
+
+    case "jump-slot-from-sidebar":
+      return jumpSlot(message.slot, message.windowId);
+
+    case "unassign-slot-from-sidebar":
+      return unassignSlot(message.slot, message.windowId);
+
     case "get-state":
       return Promise.all([
         getOptions(),
