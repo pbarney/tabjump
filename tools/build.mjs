@@ -22,6 +22,10 @@ const sharedFiles = [
   "popup.js",
   "popup.css",
 
+  "sidebar.html",
+  "sidebar.js",
+  "sidebar.css",
+
   "options.html",
   "options.js",
   "options.css",

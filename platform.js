@@ -85,7 +85,8 @@
       local: {
         get: promisifyChromeMethod(chromeApi.storage.local, "get"),
         set: promisifyChromeMethod(chromeApi.storage.local, "set")
-      }
+      },
+      onChanged: chromeApi.storage.onChanged
     };
 
     const tabs = {
@@ -95,10 +96,12 @@
       create: promisifyChromeMethod(chromeApi.tabs, "create"),
       onRemoved: chromeApi.tabs.onRemoved,
       onUpdated: chromeApi.tabs.onUpdated,
+      onActivated: chromeApi.tabs.onActivated,
       onAttached: chromeApi.tabs.onAttached
     };
 
     const windows = {
+      getCurrent: promisifyChromeMethod(chromeApi.windows, "getCurrent"),
       update: promisifyChromeMethod(chromeApi.windows, "update"),
       onRemoved: chromeApi.windows.onRemoved
     };

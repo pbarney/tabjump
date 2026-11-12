@@ -143,6 +143,28 @@ function toggleHelpView() {
   }
 }
 
+async function openSidebar() {
+  try {
+    if (TabJumpPlatform.isFirefoxRuntime()) {
+      await browser.sidebarAction.open();
+    } else if (globalThis.chrome?.sidePanel?.open) {
+      // Resolve this without an await so the open() call retains user activation.
+      const windowId = state?.activeWindowId;
+      if (!Number.isInteger(windowId))
+        throw new Error("No browser window is associated with this popup.");
+
+      await chrome.sidePanel.open({ windowId });
+    } else {
+      throw new Error("The sidebar API is unavailable in this browser.");
+    }
+
+    window.close();
+  } catch (error) {
+    console.error("Could not open TabJump sidebar:", error);
+    setStatus("Could not open sidebar. Check your browser version.");
+  }
+}
+
 async function openOptionsPage() {
   try {
     await browser.runtime.openOptionsPage();
@@ -302,6 +324,7 @@ async function load() {
 
 openHelpButton.addEventListener("click", toggleHelpView);
 document.getElementById("open-options").addEventListener("click", openOptionsPage);
+document.getElementById("open-sidebar").addEventListener("click", openSidebar);
 
 document.addEventListener("click", async (event) => {
   const button = event.target.closest(".manage-shortcuts-help");
