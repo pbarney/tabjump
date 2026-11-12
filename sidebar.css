@@ -1,0 +1,151 @@
+@import url("./style.css");
+
+:root {
+  --page-width: 100%;
+  --page-padding: 10px;
+  --section-padding: 0;
+}
+
+.sidebar-header,
+.sidebar-brand,
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.sidebar-header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .7rem;
+}
+
+.sidebar-header h1 {
+  font-size: 1rem;
+}
+
+.scope-label {
+  color: var(--muted);
+  font-size: .75rem;
+  white-space: nowrap;
+}
+
+.sidebar-hint {
+  color: var(--muted);
+  font-size: .8rem;
+  margin: .65rem 0;
+}
+
+.sidebar-slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.sidebar-slot {
+  display: flex;
+  min-width: 0;
+  align-items: stretch;
+  gap: .35rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 3px;
+}
+
+.sidebar-slot.current {
+  border-color: Highlight;
+  background: color-mix(in srgb, Highlight 12%, transparent);
+}
+
+.sidebar-slot.empty {
+  opacity: .6;
+}
+
+.sidebar-jump {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  text-align: start;
+  padding: .35rem .25rem;
+  border: none;
+  background: transparent;
+  color: var(--text);
+}
+
+.sidebar-jump:hover:not(:disabled) {
+  background: color-mix(in srgb, Highlight 12%, transparent);
+}
+
+.sidebar-jump:disabled {
+  color: var(--muted);
+  background: transparent;
+}
+
+.sidebar-number {
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 700;
+  color: var(--text);
+  background: color-mix(in srgb, Highlight 13%, transparent);
+}
+
+.sidebar-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-unassign {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 .45rem;
+  font-size: 1.1rem;
+}
+
+.sidebar-unassign:hover {
+  background: color-mix(in srgb, CanvasText 9%, transparent);
+  color: var(--text);
+}
+
+.sidebar-footer {
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  margin-top: .85rem;
+  padding-top: .7rem;
+}
+
+.sidebar-footer p {
+  font-size: .75rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.sidebar-footer button {
+  flex: none;
+}
+
+@media (forced-colors: active) {
+  .sidebar-slot.current {
+    border-color: Highlight;
+    background: Canvas;
+  }
+
+  .sidebar-jump:focus-visible,
+  .sidebar-unassign:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}
