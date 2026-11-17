@@ -37,9 +37,7 @@
 
 .sidebar-footer {
   justify-content: space-between;
-  border-top: 1px solid var(--border);
   margin-top: .85rem;
-  padding-top: .7rem;
 }
 
 .sidebar-footer p {
