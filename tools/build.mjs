@@ -17,6 +17,8 @@ const sharedFiles = [
   "platform.js",
   
   "style.css",
+  "slot-list.js",
+  "slot-list.css",
 
   "popup.html",
   "popup.js",
