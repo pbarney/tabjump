@@ -236,6 +236,17 @@ function buildPopupState(slots, options, commands, platformOs, currentTabId = nu
   };
 }
 
+async function assignSlotFromSidebar(slot, windowId) {
+  if (!Number.isInteger(windowId) || windowId < 0)
+    throw new Error("Invalid sidebar window ID.");
+
+  const [activeTab] = await browser.tabs.query({ active: true, windowId });
+  if (!activeTab)
+    throw new Error("No active tab is available in this sidebar's window.");
+
+  return assignSlot(slot, activeTab);
+}
+
 async function getSidebarState(windowId) {
   if (!Number.isInteger(windowId) || windowId < 0)
     throw new Error("Invalid sidebar window ID.");
@@ -1491,6 +1502,9 @@ browser.runtime.onMessage.addListener((message) => {
   switch (message.type) {
     case "get-sidebar-state":
       return getSidebarState(message.windowId);
+
+    case "assign-slot-from-sidebar":
+      return assignSlotFromSidebar(message.slot, message.windowId);
 
     case "jump-slot-from-sidebar":
       return jumpSlot(message.slot, message.windowId);

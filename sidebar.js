@@ -5,10 +5,13 @@
 let sidebarWindowId = null;
 let refreshRunning = false;
 let refreshQueued = false;
+let sidebarState = null;
+let showShortcutKeys = false;
 
 const sidebarSlots = document.getElementById("sidebar-slots");
 const sidebarStatus = document.getElementById("sidebar-status");
 const sidebarScopeLabel = document.getElementById("scope-label");
+const showKeysCheckbox = document.getElementById("show-keys");
 
 function sidebarMessage(type, extra = {}) {
   return browser.runtime.sendMessage({ type, ...extra });
@@ -19,80 +22,59 @@ function showSidebarStatus(text) {
 }
 
 function renderSidebar(state) {
+  sidebarState = state;
   sidebarScopeLabel.textContent = state.slotScope === "per-window"
     ? "Per-window"
     : "Global";
-  sidebarSlots.textContent = "";
 
-  for (const slotView of state.slotViews) {
-    const row = document.createElement("li");
-    row.className = [
-      "sidebar-slot",
-      slotView.assigned ? "" : "empty",
-      slotView.isCurrentTab ? "current" : ""
-    ].filter(Boolean).join(" ");
+  TabJumpSlotList.render(sidebarSlots, state.slotViews, {
+    showShortcutKeys,
 
-    const jump = document.createElement("button");
-    jump.type = "button";
-    jump.className = "sidebar-jump";
-    jump.disabled = !slotView.assigned;
-    jump.title = slotView.assigned
-      ? `Jump to Slot ${slotView.slot} with ${slotView.jumpShortcut}: ${slotView.title}`
-      : `Slot ${slotView.slot} is empty. Assign with ${slotView.assignShortcut}`;
-    jump.setAttribute("aria-label", jump.title);
+    // The title is already visible; the jump badge's tooltip shows the URL.
+    getJumpTooltip: slotView => slotView.url || "Jump to Slot " + slotView.slot,
 
-    const number = document.createElement("span");
-    number.className = "sidebar-number";
-    // number.textContent = String(slotView.slot);
-    number.textContent = slotView.assigned
-      ? slotView.jumpShortcut
-      : slotView.assignShortcut;
-
-    const title = document.createElement("span");
-    title.className = "sidebar-title";
-    title.textContent = slotView.assigned ? slotView.title : `Unassigned. Assign with ${slotView.assignShortcut}`;
-
-    jump.append(number, title);
-    jump.addEventListener("click", async () => {
+    onJump: async slot => {
       try {
         const ok = await sidebarMessage("jump-slot-from-sidebar", {
-          slot: slotView.slot,
+          slot,
           windowId: sidebarWindowId
         });
         if (!ok)
-          showSidebarStatus(`Slot ${slotView.slot} is unavailable.`);
+          showSidebarStatus("Slot " + slot + " is unavailable.");
         await requestSidebarRefresh();
       } catch (error) {
         console.error("Sidebar jump failed:", error);
-        showSidebarStatus(`Could not jump to Slot ${slotView.slot}.`);
+        showSidebarStatus("Could not jump to Slot " + slot + ".");
       }
-    });
-    row.append(jump);
+    },
 
-    if (slotView.assigned) {
-      const unassign = document.createElement("button");
-      unassign.type = "button";
-      unassign.className = "sidebar-unassign";
-      unassign.textContent = "×";
-      unassign.title = `Unassign Slot ${slotView.slot}`;
-      unassign.setAttribute("aria-label", unassign.title);
-      unassign.addEventListener("click", async () => {
-        try {
-          await sidebarMessage("unassign-slot-from-sidebar", {
-            slot: slotView.slot,
-            windowId: sidebarWindowId
-          });
-          await requestSidebarRefresh();
-        } catch (error) {
-          console.error("Sidebar unassign failed:", error);
-          showSidebarStatus(`Could not unassign Slot ${slotView.slot}.`);
-        }
-      });
-      row.append(unassign);
+    // Always target the active tab in the window containing this sidebar.
+    onAssign: async slot => {
+      try {
+        await sidebarMessage("assign-slot-from-sidebar", {
+          slot,
+          windowId: sidebarWindowId
+        });
+        await requestSidebarRefresh();
+      } catch (error) {
+        console.error("Sidebar assignment failed:", error);
+        showSidebarStatus("Could not assign Slot " + slot + ".");
+      }
+    },
+
+    onUnassign: async slot => {
+      try {
+        await sidebarMessage("unassign-slot-from-sidebar", {
+          slot,
+          windowId: sidebarWindowId
+        });
+        await requestSidebarRefresh();
+      } catch (error) {
+        console.error("Sidebar unassign failed:", error);
+        showSidebarStatus("Could not unassign Slot " + slot + ".");
+      }
     }
-
-    sidebarSlots.append(row);
-  }
+  });
 }
 
 async function requestSidebarRefresh() {
@@ -126,9 +108,33 @@ async function initSidebar() {
 
   sidebarWindowId = win.id;
 
+  const saved = await browser.storage.local.get("showShortcutKeys");
+  showShortcutKeys = saved.showShortcutKeys === true;
+  showKeysCheckbox.checked = showShortcutKeys;
+
+  showKeysCheckbox.addEventListener("change", () => {
+    showShortcutKeys = showKeysCheckbox.checked;
+    if (sidebarState)
+      renderSidebar(sidebarState);
+
+    browser.storage.local.set({ showShortcutKeys }).catch(error => {
+      console.error("Could not save shortcut display preference:", error);
+      showSidebarStatus("Could not save shortcut display preference.");
+    });
+  });
+
   browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === "local" &&
-        ["slots", "windowSlots", "options"].some(key => key in changes))
+    if (areaName !== "local")
+      return;
+
+    if ("showShortcutKeys" in changes) {
+      showShortcutKeys = changes.showShortcutKeys.newValue === true;
+      showKeysCheckbox.checked = showShortcutKeys;
+      if (sidebarState)
+        renderSidebar(sidebarState);
+    }
+
+    if (["slots", "windowSlots", "options"].some(key => key in changes))
       requestSidebarRefresh();
   });
 

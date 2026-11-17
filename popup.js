@@ -3,12 +3,14 @@ let statusTimer = null;
 let helpIsOpen = false;
 let shortcutMode = null;
 let shortcutModeTimer = null;
+let showShortcutKeys = false;
 
 const STATUS_MSG_TIMEOUT_MS = 3000;
 
 const openHelpButton = document.getElementById("open-help");
 const slotsView = document.getElementById("slots-view");
 const helpView = document.getElementById("help-view");
+const showKeysCheckbox = document.getElementById("show-keys");
 
 function send(type, extra = {}) {
   return browser.runtime.sendMessage({ type, ...extra });
@@ -208,88 +210,41 @@ async function unassignCurrentTabFromPopup() {
   await load();
 }
 
-function formatSlotSubtitle(slotView) {
-  if (!slotView.assigned) {
-    return [
-      slotView.jumpShortcut
-        ? `Jump with ${slotView.jumpShortcut}`
-        : "Jump shortcut unset",
-      slotView.assignShortcut
-        ? `Assign with ${slotView.assignShortcut}`
-        : "assign shortcut unset"
-    ].join(" · ");
-  }
+function renderSlots() {
+  if (!state)
+    return;
 
-  if (!slotView.url)
-    return "";
-
-  try {
-    const parsed = new URL(slotView.url);
-    const path = parsed.pathname === "/" ? "" : parsed.pathname;
-    return `${parsed.hostname}${path}`;
-  } catch (_) {
-    return slotView.url;
-  }
+  TabJumpSlotList.render(document.getElementById("slots"), state.slotViews, {
+    showShortcutKeys,
+    onJump: slot => jumpToSlot(slot, false),
+    onAssign: assignSlotFromPopup,
+    onUnassign: unassignSlotFromPopup
+  });
 }
 
-function renderSlots() {
-  const container = document.getElementById("slots");
-  container.textContent = "";
+async function initializeShortcutToggle() {
+  const saved = await browser.storage.local.get("showShortcutKeys");
+  showShortcutKeys = saved.showShortcutKeys === true;
+  showKeysCheckbox.checked = showShortcutKeys;
 
-  for (const slotView of state.slotViews) {
-    const row = document.createElement("div");
-    row.className = [
-      "slot",
-      slotView.assigned ? "" : "empty",
-      slotView.isCurrentTab ? "current" : ""
-    ].filter(Boolean).join(" ");
+  showKeysCheckbox.addEventListener("change", () => {
+    showShortcutKeys = showKeysCheckbox.checked;
+    renderSlots();
 
-    const jump = document.createElement("button");
-    jump.type = "button";
-    jump.className = "slot-badge";
-    jump.textContent = slotView.badge;
-    jump.disabled = !slotView.assigned;
-    jump.title = slotView.assigned
-      ? `Jump to Slot ${slotView.slot}`
-      : `Slot ${slotView.slot} is empty`;
-    jump.setAttribute("aria-label", jump.title);
-
-    jump.addEventListener("click", async () => {
-      await jumpToSlot(slotView.slot, false);
+    browser.storage.local.set({ showShortcutKeys }).catch(error => {
+      console.error("Could not save shortcut display preference:", error);
+      setStatus("Could not save shortcut display preference.");
     });
+  });
 
-    const details = document.createElement("div");
-    details.className = "slot-details";
+  browser.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "local" || !("showShortcutKeys" in changes))
+      return;
 
-    const title = document.createElement("div");
-    title.className = "slot-title";
-    title.textContent = slotView.title;
-
-    const subtitle = document.createElement("div");
-    subtitle.className = "slot-subtitle";
-    subtitle.textContent = formatSlotSubtitle(slotView);
-
-    details.append(title, subtitle);
-
-    const assign = document.createElement("button");
-    assign.type = "button";
-    assign.textContent = slotView.assigned ? "×" : "+";
-    assign.title = slotView.assigned
-      ? `Unassign Slot ${slotView.slot}`
-      : `Assign current tab to Slot ${slotView.slot}`;
-    assign.setAttribute("aria-label", assign.title);
-
-    assign.addEventListener("click", async () => {
-      if (slotView.assigned) {
-        await unassignSlotFromPopup(slotView.slot);
-      } else {
-        await assignSlotFromPopup(slotView.slot);
-      }
-    });
-
-    row.append(jump, details, assign);
-    container.append(row);
-  }
+    showShortcutKeys = changes.showShortcutKeys.newValue === true;
+    showKeysCheckbox.checked = showShortcutKeys;
+    renderSlots();
+  });
 }
 
 function renderHelp() {
@@ -484,7 +439,9 @@ document.getElementById("clear-all").addEventListener("click", async () => {
 
 setStatus(defaultStatus());
 
-load().catch(error => {
-  console.error(error);
-  setStatus("Could not load slot state.");
-});
+initializeShortcutToggle()
+  .then(load)
+  .catch(error => {
+    console.error(error);
+    setStatus("Could not load slot state.");
+  });

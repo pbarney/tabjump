@@ -106,6 +106,13 @@ TabJump doesn't inject shortcut handlers into websites or modify websites in any
 
 ## Sidebar
 
+The popup and sidebar now use one shared slot-row interface. Both show the tab title
+and shortened URL, with compact **+** (assign) and **×** (unassign) buttons.
+Use **Show shortcut keys** to switch the slot badges from numbers to the
+configured jump shortcuts (assigned slots) or assign shortcuts (empty slots).
+If a shortcut is not configured, its badge says **No key**. This preference is
+shared between the popup and sidebar and persists across sessions.
+
 version 0.3.0 adds an optional persistent sidebar, bringing a much-needed visual indicator to browsers that don't (or can't) use the Tree Style Tab extension. Open it with **Sidebar** in the toolbar popup. The sidebar shows Global slots (across all windows) or Per-window slots (within the current window) depending on which mode you've selected in the options. It stays visible across tab switches, lets you jump or unassign, and updates when assignments change.
 
 If you use TST in Firefox, you cannot have both the TST side bar and the TabJump sidebar at the same time. You'll have to choose which one you want.
