@@ -33,11 +33,21 @@
         slotView.isCurrentTab ? "current" : ""
       ].filter(Boolean).join(" ");
 
-      // The primary button spans the badge, title and URL.
-      // The separate +/- button remains an independent action.
-      const main = document.createElement("button");
-      main.type = "button";
+      // Assigned slots navigate; empty slots are labels, not controls.
+      // Assignment and unassignment are handled exclusively by the +/- button.
+      const main = document.createElement(slotView.assigned ? "button" : "div");
       main.className = "slot-main";
+
+      if (slotView.assigned) {
+        main.type = "button";
+        const mainLabel = "Jump to Slot " + slotView.slot + ": " + slotView.title;
+        main.setAttribute("aria-label", mainLabel);
+        main.title = getJumpTooltip?.(slotView) || mainLabel;
+        main.addEventListener("click", () => {
+          if (onJump)
+            onJump(slotView.slot);
+        });
+      }
 
       const badge = document.createElement("span");
       badge.className = "slot-badge";
@@ -48,20 +58,6 @@
         : slotView.assignShortcut;
       badge.textContent = showShortcutKeys ? (shortcut || "No key") : String(slotView.slot);
       badge.classList.toggle("show-keys", showShortcutKeys);
-
-      const mainLabel = slotView.assigned
-        ? "Jump to Slot " + slotView.slot + ": " + slotView.title
-        : "Assign active tab to Slot " + slotView.slot;
-      main.setAttribute("aria-label", mainLabel);
-      main.title = slotView.assigned
-        ? (getJumpTooltip?.(slotView) || mainLabel)
-        : mainLabel;
-
-      main.addEventListener("click", () => {
-        const handler = slotView.assigned ? onJump : onAssign;
-        if (handler)
-          handler(slotView.slot);
-      });
 
       const details = document.createElement("span");
       details.className = "slot-details";

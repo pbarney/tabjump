@@ -61,12 +61,18 @@
   text-align: start;
 }
 
-.slot-main:hover {
-  background: color-mix(in srgb, Highlight 8%, transparent);
+/* Override the generic button hover/active backgrounds: the row owns feedback. */
+button.slot-main:hover,
+button.slot-main:active {
+  background: transparent;
 }
 
-.slot-main:active {
-  background: color-mix(in srgb, Highlight 12%, transparent);
+.slot-row:has(> button.slot-main:is(:hover, :focus-visible)) {
+  background: color-mix(in srgb, Highlight 16%, transparent);
+}
+
+.slot-row:has(> button.slot-main:active) {
+  background: color-mix(in srgb, Highlight 22%, transparent);
 }
 
 .slot-main:focus-visible {
@@ -91,14 +97,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.slot-main:hover .slot-badge {
-  background: color-mix(in srgb, Highlight 28%, transparent);
-}
-
-.slot-main:active .slot-badge {
-  background: color-mix(in srgb, Highlight 38%, transparent);
 }
 
 .slot-row.current .slot-badge {
