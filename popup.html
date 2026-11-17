@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TabJump</title>
   <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="slot-list.css">
 </head>
 <body>
   <header>
@@ -21,7 +22,13 @@
 
   <main>
     <section id="slots-view">
-      <div id="slots" class="slots" aria-live="polite"></div>
+      <div class="slot-toolbar">
+        <label for="show-keys">
+          <input id="show-keys" type="checkbox">
+          Show shortcut keys
+        </label>
+      </div>
+      <ol id="slots" class="slot-list" aria-label="Jump slots" aria-live="polite"></ol>
 
       <div class="actions">
         <button id="unassign-current" type="button">Unassign Current Tab</button>
@@ -84,6 +91,7 @@
   </main>
 
   <script src="platform.js"></script>
+  <script src="slot-list.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

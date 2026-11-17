@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TabJump Sidebar</title>
   <link rel="stylesheet" href="sidebar.css">
+  <link rel="stylesheet" href="slot-list.css">
 </head>
 <body>
   <header class="sidebar-header">
@@ -15,18 +16,14 @@
     <span id="scope-label" class="scope-label">Loading…</span>
   </header>
   <main>
-    <div class="sidebar-header">
+    <div class="slot-toolbar">
       <p class="sidebar-hint">Your jump slots</p>
-      <span>
-        <label for="show-keys">
-          <input id="show-keys" type="checkbox">
-          Show Shortcut Keys
-        </label>
-      </span>
+      <label for="show-keys">
+        <input id="show-keys" type="checkbox">
+        Show shortcut keys
+      </label>
     </div>
-
-    <p class="sidebar-hint">Your jump slots</p>
-    <ol id="sidebar-slots" class="sidebar-slots" aria-label="Jump slots"></ol>
+    <ol id="sidebar-slots" class="slot-list" aria-label="Jump slots"></ol>
   </main>
   <footer class="sidebar-footer">
     <p>Click an item to jump to its tab.</p>
@@ -34,6 +31,7 @@
   </footer>
   <p id="sidebar-status" class="status" role="status" aria-live="polite"></p>
   <script src="platform.js"></script>
+  <script src="slot-list.js"></script>
   <script src="sidebar.js"></script>
 </body>
 </html>

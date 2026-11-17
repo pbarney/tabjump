@@ -24,92 +24,6 @@ header {
   }
 }
 
-.slots {
-  display: grid;
-  gap: 6px;
-
-  .slot {
-    display: grid;
-    min-width: 0;
-    grid-template-columns: 42px 1fr auto;
-    align-items: center;
-    gap: 6px;
-    min-height: 42px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px;
-
-    &.empty {
-      min-width: 0;
-
-      .slot-details .slot-title {
-        color: var(--muted);
-      }
-    }
-
-    &.current {
-      border-color: Highlight;
-      background: color-mix(in srgb, Highlight 10%, transparent);
-
-      .slot-badge {
-        border-color: Highlight;
-        background: color-mix(in srgb, Highlight 28%, transparent);
-      }
-    }
-
-    .slot-badge {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      min-width: 32px;
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border: 1px solid color-mix(in srgb, Highlight 35%, transparent);
-      border-radius: 999px;
-      color: var(--text);
-      font-weight: 700;
-      background: color-mix(in srgb, Highlight 18%, transparent);
-      cursor: pointer;
-
-      &:hover:not(:disabled) {
-        background: color-mix(in srgb, Highlight 28%, transparent);
-      }
-
-      &:active:not(:disabled) {
-        background: color-mix(in srgb, Highlight 38%, transparent);
-      }
-
-      &:disabled {
-        border-color: transparent;
-        color: var(--muted);
-        background: color-mix(in srgb, CanvasText 8%, transparent);
-        cursor: default;
-      }
-    }
-
-    .slot-details {
-      min-width: 0;
-
-      .slot-title {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        color: var(--text);
-        font-weight: 600;
-      }
-
-      .slot-subtitle {
-        margin-top: 2px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        color: var(--muted);
-        font-size: 11px;
-      }
-    }
-  }
-}
 
 .actions {
   display: flex;
@@ -170,30 +84,5 @@ header {
     button {
       font-size: revert;
     }
-  }
-}
-
-@media (forced-colors: active) {
-  .slots .slot .slot-badge {
-    color: HighlightText;
-    background: Highlight;
-    border-color: Highlight;
-  }
-
-  .slots .slot .slot-badge:disabled {
-    color: GrayText;
-    background: ButtonFace;
-    border-color: GrayText;
-  }
-
-  .slots .slot.current {
-    border-color: Highlight;
-    background: Canvas;
-  }
-
-  .slots .slot.current .slot-badge {
-    color: HighlightText;
-    background: Highlight;
-    border-color: Highlight;
   }
 }
