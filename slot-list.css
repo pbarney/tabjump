@@ -45,6 +45,35 @@
   background: color-mix(in srgb, Highlight 10%, transparent);
 }
 
+.slot-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.slot-main:hover {
+  background: color-mix(in srgb, Highlight 8%, transparent);
+}
+
+.slot-main:active {
+  background: color-mix(in srgb, Highlight 12%, transparent);
+}
+
+.slot-main:focus-visible {
+  outline: 2px solid Highlight;
+  outline-offset: 1px;
+}
+
 .slot-badge {
   display: inline-flex;
   flex: none;
@@ -64,11 +93,11 @@
   text-overflow: ellipsis;
 }
 
-.slot-badge:hover:not(:disabled) {
+.slot-main:hover .slot-badge {
   background: color-mix(in srgb, Highlight 28%, transparent);
 }
 
-.slot-badge:active:not(:disabled) {
+.slot-main:active .slot-badge {
   background: color-mix(in srgb, Highlight 38%, transparent);
 }
 
@@ -77,7 +106,7 @@
   background: color-mix(in srgb, Highlight 28%, transparent);
 }
 
-.slot-badge:disabled {
+.slot-row.empty .slot-badge {
   border-color: transparent;
   color: var(--muted);
   background: color-mix(in srgb, CanvasText 8%, transparent);
@@ -86,10 +115,12 @@
 
 .slot-details {
   flex: 1;
+  display: block;
   min-width: 0;
 }
 
 .slot-title {
+  display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -102,6 +133,7 @@
 }
 
 .slot-subtitle {
+  display: block;
   margin-top: 2px;
   overflow: hidden;
   white-space: nowrap;
@@ -140,13 +172,13 @@
     background: Canvas;
   }
 
-  .slot-badge:not(:disabled) {
+  .slot-row:not(.empty) .slot-badge {
     color: HighlightText;
     background: Highlight;
     border-color: Highlight;
   }
 
-  .slot-badge:disabled {
+  .slot-row.empty .slot-badge {
     color: GrayText;
     background: ButtonFace;
     border-color: GrayText;

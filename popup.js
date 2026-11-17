@@ -218,7 +218,8 @@ function renderSlots() {
     showShortcutKeys,
     onJump: slot => jumpToSlot(slot, false),
     onAssign: assignSlotFromPopup,
-    onUnassign: unassignSlotFromPopup
+    onUnassign: unassignSlotFromPopup,
+    getJumpTooltip: slotView => slotView.title
   });
 }
 

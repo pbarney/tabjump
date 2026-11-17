@@ -33,45 +33,48 @@
         slotView.isCurrentTab ? "current" : ""
       ].filter(Boolean).join(" ");
 
-      const jump = document.createElement("button");
-      jump.type = "button";
-      jump.className = "slot-badge";
-      jump.disabled = !slotView.assigned;
+      // The primary button spans the badge, title and URL.
+      // The separate +/- button remains an independent action.
+      const main = document.createElement("button");
+      main.type = "button";
+      main.className = "slot-main";
 
-      // Display the relevant action's shortcut, not an unrelated fallback key.
+      const badge = document.createElement("span");
+      badge.className = "slot-badge";
+
+      // Show the keyboard shortcut for the action currently available.
       const shortcut = slotView.assigned
         ? slotView.jumpShortcut
         : slotView.assignShortcut;
-      jump.textContent = showShortcutKeys ? (shortcut || "No key") : String(slotView.slot);
-      jump.classList.toggle("show-keys", showShortcutKeys);
+      badge.textContent = showShortcutKeys ? (shortcut || "No key") : String(slotView.slot);
+      badge.classList.toggle("show-keys", showShortcutKeys);
 
-      const jumpLabel = slotView.assigned
-        ? "Jump to Slot " + slotView.slot
-        : "Slot " + slotView.slot + " is empty";
-      jump.setAttribute("aria-label", jumpLabel);
-      jump.title = slotView.assigned
-        ? (getJumpTooltip?.(slotView) || jumpLabel)
-        : jumpLabel;
+      const mainLabel = slotView.assigned
+        ? "Jump to Slot " + slotView.slot + ": " + slotView.title
+        : "Assign active tab to Slot " + slotView.slot;
+      main.setAttribute("aria-label", mainLabel);
+      main.title = slotView.assigned
+        ? (getJumpTooltip?.(slotView) || mainLabel)
+        : mainLabel;
 
-      jump.addEventListener("click", () => {
-        if (onJump)
-          onJump(slotView.slot);
+      main.addEventListener("click", () => {
+        const handler = slotView.assigned ? onJump : onAssign;
+        if (handler)
+          handler(slotView.slot);
       });
 
-      const details = document.createElement("div");
+      const details = document.createElement("span");
       details.className = "slot-details";
 
-      const title = document.createElement("div");
+      const title = document.createElement("span");
       title.className = "slot-title";
       title.textContent = slotView.assigned ? slotView.title : "Unassigned";
-      if (slotView.assigned)
-        title.title = slotView.title;
       details.append(title);
 
       // The subtitle is always the shortened URL, never shortcut metadata.
       const urlLabel = slotView.assigned ? shortUrl(slotView.url) : "";
       if (urlLabel) {
-        const subtitle = document.createElement("div");
+        const subtitle = document.createElement("span");
         subtitle.className = "slot-subtitle";
         subtitle.textContent = urlLabel;
         details.append(subtitle);
@@ -91,7 +94,8 @@
           handler(slotView.slot);
       });
 
-      row.append(jump, details, action);
+      main.append(badge, details);
+      row.append(main, action);
       container.append(row);
     }
   }

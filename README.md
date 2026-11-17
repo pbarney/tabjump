@@ -18,8 +18,8 @@ TabJump supports **Firefox** and **Chrome/Chromium**. Firefox users can also dis
 
 1. Install TabJump in Firefox, or load the Chrome/Chromium build as an unpacked extension (instructions below).
 2. Open a tab you want to return to and click the **TabJump toolbar button**.
-3. Click **Assign** for a slot, or press **A**, then **1–9**, while the popup is open.
-4. To return to the assigned tab, open the popup and press its slot number **1–9** (or click the slot-number badge).
+3. Click an empty slot (or its **+** button), or press **A**, then **1–9**, while the popup is open.
+4. To return to the assigned tab, open the popup and press its slot number **1–9** (or click anywhere in that slot's main area).
 5. Open **Options** to choose Global or Per-window slots and configure feedback or Firefox/TST integration.
 
 ### Fast popup workflow
@@ -33,7 +33,7 @@ TabJump supports **Firefox** and **Chrome/Chromium**. Firefox users can also dis
 | `H` | Toggle Help/Back |
 | `O` | Open Options |
 
-The popup shows **Assign** for an empty slot and **Unassign** for an occupied slot. Its **Clear All** button clears the global set in Global mode or the **current window's** set in Per-window mode.
+The shared slot list shows a **+** button for an empty slot and an **×** button for an occupied slot. Click an occupied slot's main area to jump, or an empty slot's main area to assign. Its **Clear All** button clears the global set in Global mode or the **current window's** set in Per-window mode.
 
 ## Global and Per-window slots
 
