@@ -4,7 +4,7 @@ let helpIsOpen = false;
 let shortcutMode = null;
 let shortcutModeTimer = null;
 
-const SHORTCUT_MODE_TIMEOUT_MS = 3000;
+const STATUS_MSG_TIMEOUT_MS = 3000;
 
 const openHelpButton = document.getElementById("open-help");
 const slotsView = document.getElementById("slots-view");
@@ -14,16 +14,26 @@ function send(type, extra = {}) {
   return browser.runtime.sendMessage({ type, ...extra });
 }
 
+function defaultStatus() {
+  return `
+  <span style="display: flex; justify-content: space-around">
+    <span><span class="shortcut"><kbd>1</kbd>-<kbd>9</kbd></span> Jump to slot</span> • 
+    <span><span class="shortcut"><kbd>A</kbd></span> Assign slot</span> • 
+    <span><span class="shortcut"><kbd>U</kbd></span> Unassign slot</span>
+  </span>
+`;
+}
+
 function setStatus(message) {
   const el = document.getElementById("status");
-  el.textContent = message;
+  el.innerHTML = message;
 
   if (statusTimer)
     clearTimeout(statusTimer);
 
   statusTimer = setTimeout(() => {
-    el.textContent = "";
-  }, 2200);
+    el.innerHTML = defaultStatus();
+  }, STATUS_MSG_TIMEOUT_MS);
 }
 
 function clearShortcutMode(message = "") {
@@ -45,17 +55,16 @@ function setShortcutMode(mode) {
     clearTimeout(shortcutModeTimer);
 
   if (mode === "assign") {
-    setStatus("Assign mode: press 1-9.");
+    setStatus("Assign mode: press <span class=\"shortcut\"><kbd>1</kbd>-<kbd>9</kbd></span>.");
   } else if (mode === "unassign") {
-    setStatus("Unassign mode: press 1-9, or 0 for current tab.");
+    setStatus("Unassign mode: press <span class=\"shortcut\"><kbd>1</kbd>-<kbd>9</kbd></span>, or <span class=\"shortcut\"><kbd>0</kbd></span> for current tab.");
   }
 
   shortcutModeTimer = setTimeout(() => {
     shortcutMode = null;
     shortcutModeTimer = null;
     clearShortcutMode("Shortcut mode canceled.");
-    // setStatus("");
-  }, SHORTCUT_MODE_TIMEOUT_MS);
+  }, STATUS_MSG_TIMEOUT_MS);
 }
 
 function shortcutsDifferFromDefaults(commands, shortcutDefaults) {
@@ -199,6 +208,30 @@ async function unassignCurrentTabFromPopup() {
   await load();
 }
 
+function formatSlotSubtitle(slotView) {
+  if (!slotView.assigned) {
+    return [
+      slotView.jumpShortcut
+        ? `Jump with ${slotView.jumpShortcut}`
+        : "Jump shortcut unset",
+      slotView.assignShortcut
+        ? `Assign with ${slotView.assignShortcut}`
+        : "assign shortcut unset"
+    ].join(" · ");
+  }
+
+  if (!slotView.url)
+    return "";
+
+  try {
+    const parsed = new URL(slotView.url);
+    const path = parsed.pathname === "/" ? "" : parsed.pathname;
+    return `${parsed.hostname}${path}`;
+  } catch (_) {
+    return slotView.url;
+  }
+}
+
 function renderSlots() {
   const container = document.getElementById("slots");
   container.textContent = "";
@@ -231,20 +264,16 @@ function renderSlots() {
     const title = document.createElement("div");
     title.className = "slot-title";
     title.textContent = slotView.title;
-    if (slotView.fullTitle)
-      title.title = slotView.fullTitle;
 
     const subtitle = document.createElement("div");
-    subtitle.className = "slot-url";
-    subtitle.textContent = slotView.subtitle;
-    if (slotView.fullUrl)
-      subtitle.title = slotView.fullUrl;
+    subtitle.className = "slot-subtitle";
+    subtitle.textContent = formatSlotSubtitle(slotView);
 
     details.append(title, subtitle);
 
     const assign = document.createElement("button");
     assign.type = "button";
-    assign.textContent = slotView.assigned ? "Unassign" : "Assign";
+    assign.textContent = slotView.assigned ? "×" : "+";
     assign.title = slotView.assigned
       ? `Unassign Slot ${slotView.slot}`
       : `Assign current tab to Slot ${slotView.slot}`;
@@ -292,7 +321,7 @@ function renderHelp() {
 }
 
 function updateHelpButton() {
-  openHelpButton.textContent = helpIsOpen ? "Back" : "Help";
+  openHelpButton.innerHTML = helpIsOpen ? "Back" : "<u>H</u>elp";
   openHelpButton.title = helpIsOpen ? "Back to jump slots (H)" : "Open help (H)";
 }
 
@@ -303,7 +332,7 @@ function showSlotsView() {
   helpView.hidden = true;
 
   updateHelpButton();
-  setStatus("");
+  setStatus(defaultStatus());
 }
 
 function showHelpView() {
@@ -313,7 +342,7 @@ function showHelpView() {
   helpView.hidden = false;
 
   updateHelpButton();
-  setStatus("");
+  setStatus(defaultStatus());
 }
 
 async function load() {
@@ -365,6 +394,7 @@ document.addEventListener("keydown", async event => {
     return;
   }
 
+  // toggle help screen
   if (key === "h") {
     event.preventDefault();
     clearShortcutMode();
@@ -372,10 +402,19 @@ document.addEventListener("keydown", async event => {
     return;
   }
 
+  // load options page
   if (key === "o") {
     event.preventDefault();
     clearShortcutMode();
     await openOptionsPage();
+    return;
+  }
+
+  // load sidebar
+  if (key === "s") {
+    event.preventDefault();
+    clearShortcutMode();
+    await openSidebar();
     return;
   }
 
@@ -442,6 +481,8 @@ document.getElementById("clear-all").addEventListener("click", async () => {
   );
   await load();
 });
+
+setStatus(defaultStatus());
 
 load().catch(error => {
   console.error(error);

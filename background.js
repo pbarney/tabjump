@@ -195,12 +195,7 @@ function buildSlotView(slot, entry, options, commands, currentTabId = null) {
       badge,
       badgeTitle: `Jump Slot ${slot}`,
       title: `Slot ${slot} is empty`,
-      fullTitle: "",
-      subtitle: [
-        jumpShortcut ? `Jump: ${jumpShortcut}` : "Jump shortcut unset",
-        assignShortcut ? `Assign: ${assignShortcut}` : "assign shortcut unset"
-      ].join(" · "),
-      fullUrl: "",
+      url: "",
       jumpShortcut,
       assignShortcut
     };
@@ -213,9 +208,7 @@ function buildSlotView(slot, entry, options, commands, currentTabId = null) {
     badge,
     badgeTitle: `Jump Slot ${slot}`,
     title: entry.title || entry.url || `Tab ${entry.tabId}`,
-    fullTitle: entry.title || "",
-    subtitle: shortenUrlForDisplay(entry.url),
-    fullUrl: entry.url || "",
+    url: entry.url || "",
     jumpShortcut,
     assignShortcut,
     tabId: entry.tabId,
@@ -248,6 +241,7 @@ async function getSidebarState(windowId) {
     throw new Error("Invalid sidebar window ID.");
 
   const options = await getOptions();
+  const commands = await getCommands();
   const [activeTab] = await browser.tabs.query({ active: true, windowId });
   const slots = isPerWindowScope(options)
     ? (await getWindowSlots())[windowKey(windowId)] || emptySlotMap()
@@ -257,7 +251,7 @@ async function getSidebarState(windowId) {
     windowId,
     slotScope: options.slotScope,
     slotViews: SLOT_IDS.map(slot =>
-      buildSlotView(slot, slots[String(slot)], options, [], activeTab?.id ?? null)
+      buildSlotView(slot, slots[String(slot)], options, commands, activeTab?.id ?? null)
     )
   };
 }

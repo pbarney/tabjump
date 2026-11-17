@@ -37,19 +37,20 @@ function renderSidebar(state) {
     jump.className = "sidebar-jump";
     jump.disabled = !slotView.assigned;
     jump.title = slotView.assigned
-      ? `Jump to Slot ${slotView.slot}: ${slotView.title}`
-      : `Slot ${slotView.slot} is empty`;
+      ? `Jump to Slot ${slotView.slot} with ${slotView.jumpShortcut}: ${slotView.title}`
+      : `Slot ${slotView.slot} is empty. Assign with ${slotView.assignShortcut}`;
     jump.setAttribute("aria-label", jump.title);
 
     const number = document.createElement("span");
     number.className = "sidebar-number";
-    number.textContent = String(slotView.slot);
+    // number.textContent = String(slotView.slot);
+    number.textContent = slotView.assigned
+      ? slotView.jumpShortcut
+      : slotView.assignShortcut;
 
     const title = document.createElement("span");
     title.className = "sidebar-title";
-    title.textContent = slotView.assigned ? slotView.title : "Unassigned";
-    if (slotView.fullTitle)
-      title.title = slotView.fullTitle;
+    title.textContent = slotView.assigned ? slotView.title : `Unassigned. Assign with ${slotView.assignShortcut}`;
 
     jump.append(number, title);
     jump.addEventListener("click", async () => {

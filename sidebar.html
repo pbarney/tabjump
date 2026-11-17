@@ -15,11 +15,21 @@
     <span id="scope-label" class="scope-label">Loading…</span>
   </header>
   <main>
+    <div class="sidebar-header">
+      <p class="sidebar-hint">Your jump slots</p>
+      <span>
+        <label for="show-keys">
+          <input id="show-keys" type="checkbox">
+          Show Shortcut Keys
+        </label>
+      </span>
+    </div>
+
     <p class="sidebar-hint">Your jump slots</p>
     <ol id="sidebar-slots" class="sidebar-slots" aria-label="Jump slots"></ol>
   </main>
   <footer class="sidebar-footer">
-    <p>Click a numbered slot to jump to its tab.</p>
+    <p>Click an item to jump to its tab.</p>
     <button id="open-options" type="button">Options</button>
   </footer>
   <p id="sidebar-status" class="status" role="status" aria-live="polite"></p>

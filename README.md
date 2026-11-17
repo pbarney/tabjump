@@ -104,13 +104,11 @@ All slot assignments are **temporary**: If you close a tab, its assignment will 
 
 TabJump doesn't inject shortcut handlers into websites or modify websites in any way. Tree Style Tab badges are optional and available only in Firefox with Tree Style Tab, but they are totally worth it and improve the experience considerably.
 
-## Sidebar development (v0.3.0, unreleased)
+## Sidebar
 
-The `v0.3.0-sidebar` development branch adds an optional persistent sidebar. Open it with **Sidebar** in the toolbar popup. The sidebar shows the current window's slots in Per-window mode, or shared slots in Global mode. It stays visible across tab switches, lets you jump or unassign, and updates when assignments change.
+version 0.3.0 adds an optional persistent sidebar, bringing a much-needed visual indicator to browsers that don't (or can't) use the Tree Style Tab extension. Open it with **Sidebar** in the toolbar popup. The sidebar shows Global slots (across all windows) or Per-window slots (within the current window) depending on which mode you've selected in the options. It stays visible across tab switches, lets you jump or unassign, and updates when assignments change.
 
-Firefox uses its native extension sidebar; Chromium uses a window-wide side panel (Chrome 116+). Neither needs website permissions. In Firefox, the TabJump sidebar takes the place of another displayed sidebar such as Tree Style Tab until the user switches back.
-
-This feature is not part of the released v0.2.0.1 package. Browser testing is still required.
+If you use TST in Firefox, you cannot have both the TST side bar and the TabJump sidebar at the same time. You'll have to choose which one you want.
 
 ## Development
 

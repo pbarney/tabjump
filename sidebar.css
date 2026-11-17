@@ -26,13 +26,11 @@
 
 .scope-label {
   color: var(--muted);
-  font-size: .75rem;
   white-space: nowrap;
 }
 
 .sidebar-hint {
   color: var(--muted);
-  font-size: .8rem;
   margin: .65rem 0;
 }
 
@@ -87,7 +85,8 @@
 
 .sidebar-number {
   flex: none;
-  width: 1.8rem;
+  /* width: 1.8rem; */
+  padding-inline: 3px;
   height: 1.8rem;
   display: flex;
   align-items: center;
@@ -128,7 +127,6 @@
 }
 
 .sidebar-footer p {
-  font-size: .75rem;
   color: var(--muted);
   margin: 0;
   line-height: 1.35;
