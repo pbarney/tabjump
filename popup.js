@@ -6,6 +6,8 @@ let shortcutModeTimer = null;
 let showShortcutKeys = false;
 
 const STATUS_MSG_TIMEOUT_MS = 3000;
+const SHORTCUT_ONBOARDING_KEY = "chromiumShortcutOnboardingV030Dismissed";
+const shortcutOnboarding = document.getElementById("shortcut-onboarding");
 
 const openHelpButton = document.getElementById("open-help");
 const slotsView = document.getElementById("slots-view");
@@ -250,6 +252,7 @@ async function initializeShortcutToggle() {
 
 function renderHelp() {
   renderShortcut("shortcut-open", state.shortcutHelp.open);
+  renderShortcut("shortcut-sidebar", state.shortcutHelp.sidebar);
   renderShortcut("shortcut-jump", state.shortcutHelp.jump);
   renderShortcut("shortcut-assign", state.shortcutHelp.assign);
   renderShortcut("shortcut-unassign", state.shortcutHelp.unassign);
@@ -307,6 +310,26 @@ async function load() {
   renderHelp();
 }
 
+async function initializeShortcutOnboarding() {
+  if (TabJumpPlatform.isFirefoxRuntime())
+    return;
+
+  const saved = await browser.storage.local.get(SHORTCUT_ONBOARDING_KEY);
+  shortcutOnboarding.hidden = saved[SHORTCUT_ONBOARDING_KEY] === true;
+}
+
+async function dismissShortcutOnboarding() {
+  await browser.storage.local.set({ [SHORTCUT_ONBOARDING_KEY]: true });
+  shortcutOnboarding.hidden = true;
+}
+
+document.getElementById("dismiss-shortcut-onboarding").addEventListener("click", () => {
+  dismissShortcutOnboarding().catch(error => {
+    console.error("Could not save shortcut onboarding preference:", error);
+    setStatus("Could not save shortcut onboarding preference.");
+  });
+});
+
 openHelpButton.addEventListener("click", toggleHelpView);
 document.getElementById("open-options").addEventListener("click", openOptionsPage);
 document.getElementById("open-sidebar").addEventListener("click", openSidebar);
@@ -317,6 +340,14 @@ document.addEventListener("click", async (event) => {
   if (!button) return;
 
   try {
+    if (button.id === "onboarding-manage-shortcuts") {
+      // Store the decision without delaying the shortcut-settings user action.
+      shortcutOnboarding.hidden = true;
+      browser.storage.local.set({ [SHORTCUT_ONBOARDING_KEY]: true }).catch(error => {
+        console.error("Could not save shortcut onboarding preference:", error);
+      });
+    }
+
     await send("open-shortcut-settings");
     window.close();
   } catch (error) {
@@ -442,6 +473,7 @@ setStatus(defaultStatus());
 
 initializeShortcutToggle()
   .then(load)
+  .then(initializeShortcutOnboarding)
   .catch(error => {
     console.error(error);
     setStatus("Could not load slot state.");

@@ -55,6 +55,15 @@
       },
       "description": "Open TabJump"
     },
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+J",
+        "windows": "Alt+Shift+J",
+        "linux": "Alt+Shift+J",
+        "mac": "MacCtrl+Shift+J"
+      },
+      "description": "Open TabJump sidebar"
+    },
     "jump-slot-1": {
       "suggested_key": {
         "default": "Alt+1",
@@ -232,7 +241,9 @@
       "id": "@tabjump.pbarney",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "none"
+        ]
       }
     }
   }

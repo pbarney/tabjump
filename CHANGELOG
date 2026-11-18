@@ -1,3 +1,13 @@
+## v0.3.0 — In development
+
+- Added a persistent Firefox sidebar and Chromium side panel, with shared popup/sidebar slot rows and shortcut display.
+- Added a dedicated Open Sidebar shortcut (Alt+Shift+J on Windows/Linux, MacCtrl+Shift+J on macOS).
+- Added Open TabJump Sidebar to the toolbar context menu in both browsers.
+- Kept Chromium's four suggested shortcuts by leaving Unassign Current Tab available without a default shortcut.
+- Added direct shortcut-settings access in the sidebar and dismissible Chromium first-time shortcut guidance.
+- Updated help and documentation to clarify the + button assigns empty slots.
+- Added real-browser lifecycle integration tests (20 passing in Firefox and Chromium).
+
 # Changelog
 
 ## v0.1.0 initial version

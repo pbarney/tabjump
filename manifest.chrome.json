@@ -44,6 +44,15 @@
       },
       "description": "Open TabJump"
     },
+    "open-sidebar": {
+      "suggested_key": {
+        "default": "Alt+Shift+J",
+        "windows": "Alt+Shift+J",
+        "linux": "Alt+Shift+J",
+        "mac": "MacCtrl+Shift+J"
+      },
+      "description": "Open TabJump sidebar"
+    },
     "jump-slot-1": {
       "suggested_key": {
         "default": "Alt+1",
@@ -78,12 +87,6 @@
       "description": "Jump to tab in slot 9"
     },
     "unassign-current-tab": {
-      "suggested_key": {
-        "default": "Alt+Shift+0",
-        "windows": "Alt+Shift+0",
-        "linux": "Alt+Shift+0",
-        "mac": "MacCtrl+Shift+0"
-      },
       "description": "Unassign current tab from its jump slot"
     },
     "assign-slot-1": {

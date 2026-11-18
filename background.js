@@ -281,6 +281,8 @@ function shortcutProfileForPlatform(platformOs) {
     return {
       openDisplay: "Alt+J",
       openExpected: "Alt+J",
+      sidebarDisplay: "Alt+Shift+J",
+      sidebarExpected: "Alt+Shift+J",
       jumpDisplayModifier: "Ctrl",
       jumpExpectedModifier: "Ctrl",
       assignDisplayModifier: "Ctrl+Shift",
@@ -292,6 +294,8 @@ function shortcutProfileForPlatform(platformOs) {
     return {
       openDisplay: "Control+J",
       openExpected: "MacCtrl+J",
+      sidebarDisplay: "Control+Shift+J",
+      sidebarExpected: "MacCtrl+Shift+J",
       jumpDisplayModifier: "Control",
       jumpExpectedModifier: "MacCtrl",
       assignDisplayModifier: "Control+Shift",
@@ -302,6 +306,8 @@ function shortcutProfileForPlatform(platformOs) {
   return {
     openDisplay: "Alt+J",
     openExpected: "Alt+J",
+    sidebarDisplay: "Alt+Shift+J",
+    sidebarExpected: "Alt+Shift+J",
     jumpDisplayModifier: "Alt",
     jumpExpectedModifier: "Alt",
     assignDisplayModifier: "Alt+Shift",
@@ -319,6 +325,7 @@ function buildShortcutHelp(platformOs, environment) {
   if (!environment.supportsDefaultSlotShortcuts) {
     return {
       open: profile.openDisplay,
+      sidebar: profile.sidebarDisplay,
       jump: "Assign in extension shortcut settings",
       assign: "Assign in extension shortcut settings",
       unassign: "Assign in extension shortcut settings"
@@ -327,6 +334,7 @@ function buildShortcutHelp(platformOs, environment) {
 
   return {
     open: profile.openDisplay,
+    sidebar: profile.sidebarDisplay,
     jump: shortcutRange(profile.jumpDisplayModifier, 1, 9),
     assign: shortcutRange(profile.assignDisplayModifier, 1, 9),
     unassign: `${profile.assignDisplayModifier}+0`
@@ -336,7 +344,9 @@ function buildShortcutHelp(platformOs, environment) {
 function buildShortcutDefaults(platformOs, environment) {
   const profile = shortcutProfileForPlatform(platformOs);
   const defaults = {
-    [environment.openPopupCommandName]: profile.openExpected
+    [environment.openPopupCommandName]: profile.openExpected,
+    [environment.supportsDefaultSlotShortcuts ? "_execute_sidebar_action" : "open-sidebar"]:
+      profile.sidebarExpected
   };
 
   if (!environment.supportsDefaultSlotShortcuts)
@@ -1263,6 +1273,29 @@ async function refreshAllTstBadges() {
 }
 
 /*
+ * Sidebar commands and toolbar context menu.
+ * Open the panel before any asynchronous lookup when the event supplies a tab,
+ * preserving Chromium's user-activation requirement.
+ */
+function openSidebarFromUserAction(tab) {
+  if (TabJumpPlatform.isFirefoxRuntime())
+    return browser.sidebarAction.open();
+
+  if (!globalThis.chrome?.sidePanel?.open)
+    throw new Error("The Chromium side panel API is unavailable.");
+
+  if (Number.isInteger(tab?.windowId))
+    return chrome.sidePanel.open({ windowId: tab.windowId });
+
+  // Fallback for browsers which omit the tab from a command event.
+  return chrome.windows.getLastFocused().then(win => {
+    if (!Number.isInteger(win?.id))
+      throw new Error("Could not determine the browser window for the side panel.");
+    return chrome.sidePanel.open({ windowId: win.id });
+  });
+}
+
+/*
  * Context menu
  */
 
@@ -1320,6 +1353,12 @@ async function rebuildContextMenus() {
   }
 
   menuApi.create({
+    id: "open-tabjump-sidebar",
+    title: "Open TabJump Sidebar",
+    contexts: TabJumpPlatform.getActionMenuContexts()
+  });
+
+  menuApi.create({
     id: "open-shortcut-settings",
     title: "Manage Extension Shortcuts",
     contexts: TabJumpPlatform.getActionMenuContexts()
@@ -1373,8 +1412,13 @@ async function updateTabContextMenu(info, tab) {
  * Event handlers
  */
 
-browser.commands.onCommand.addListener(async command => {
+browser.commands.onCommand.addListener(async (command, tab) => {
   try {
+    if (command === "open-sidebar") {
+      await openSidebarFromUserAction(tab);
+      return;
+    }
+
     if (command === "unassign-current-tab") {
       const tab = await getActiveTab();
 
@@ -1414,6 +1458,11 @@ if (TabJumpPlatform.supportsTabContextMenus() && getMenuApi().onShown) {
 
 getMenuApi().onClicked.addListener(async (info, tab) => {
   try {
+    if (info.menuItemId === "open-tabjump-sidebar") {
+      await openSidebarFromUserAction(tab);
+      return;
+    }
+
     if (info.menuItemId === "tabjump-unassign-tab" && tab) {
       await unassignTab(tab.id, {
         showDesktopNotification: true,

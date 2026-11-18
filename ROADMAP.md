@@ -13,18 +13,19 @@
 
 - Firefox MV2 `sidebar_action`, not automatically opened at installation.
 - Chromium MV3 `side_panel`, window-wide instead of tab-specific (Chrome 116+).
-- Existing toolbar popup adds a **Sidebar** button; existing popup shortcuts remain unchanged.
+- Existing toolbar popup adds a **Sidebar** button; `Alt+J` remains the popup shortcut. Add a dedicated sidebar shortcut (`Alt+Shift+J` on Windows/Linux, `MacCtrl+Shift+J` on macOS) and toolbar context-menu entry.
 - Sidebar shows all nine slots: shared assignments in Global mode, this window's assignments in Per-window mode.
-- Assigned tab titles, active-tab highlighting, click-to-jump, and unassign action.
+- Assigned tab titles, active-tab highlighting, click-to-jump, and explicit +/- assign/unassign actions; shared popup/sidebar slot UI.
 - Storage-change and tab-activation synchronization without polling or host permissions.
+- Sidebar shortcut-settings access and a dismissible Chromium shortcut-onboarding notice.
 - Build copies `sidebar.html`, `sidebar.js`, and `sidebar.css` into both targets.
 
 ### Milestone 2: Testing and hardening
 
-- Test Firefox and Chromium with multiple windows and both slot scopes.
+- Automated lifecycle suite: 20/20 tests passed in Firefox and 20/20 in Chromium, covering multiple windows, slot scopes, and tab lifecycle.
 - Verify sidebar actions target the window containing the sidebar, not an unrelated focused window.
 - Verify live updates after assigning, unassigning, moving, closing, and renaming tabs.
-- Verify Chrome MV3 service-worker restarts and panel lifecycle.
+- Verify Chrome MV3 service-worker restarts and panel lifecycle (worker restart/recovery manually confirmed).
 - Test Chrome's `sidePanel.open()` user-gesture requirement.
 - Verify interaction with Firefox Tree Style Tab, which occupies the Firefox sidebar.
 - Test light/dark modes, Windows app-mode combinations, narrow widths, forced colors, keyboard access.

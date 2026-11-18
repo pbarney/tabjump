@@ -22,6 +22,16 @@
 
   <main>
     <section id="slots-view">
+      <section id="shortcut-onboarding" class="shortcut-onboarding"
+               aria-labelledby="shortcut-onboarding-title" hidden>
+        <h2 id="shortcut-onboarding-title">Set up your jump shortcuts</h2>
+        <p>Chromium leaves most jump-slot shortcuts unassigned. Configure Slots 2–9
+           in your browser's extension shortcut settings to jump directly from the keyboard.</p>
+        <div class="shortcut-onboarding-actions">
+          <button id="onboarding-manage-shortcuts" class="manage-shortcuts-help" type="button">Manage Shortcuts</button>
+          <button id="dismiss-shortcut-onboarding" type="button">Don't show again</button>
+        </div>
+      </section>
       <div class="slot-toolbar">
         <label for="show-keys">
           <input id="show-keys" type="checkbox">
@@ -45,6 +55,7 @@
       <p>These shortcuts work anywhere, as long as you have them assigned. <a href="#" class="manage-shortcuts-help">Manage Extension Shortcuts</a></p>
       <p id="shortcut-note"></p>
       <table>
+        <tr><td><strong>Open sidebar:</strong></td><td><span id="shortcut-sidebar"></span></td></tr>
         <tr><td><strong>Jump to a slot:</strong></td><td><span id="shortcut-jump"></span></td></tr>
         <tr><td><strong>Assign current tab:</strong></td><td><span id="shortcut-assign"></span></td></tr>
         <tr><td><strong>Unassign current tab:</strong></td><td><span id="shortcut-unassign"></span></td></tr>
@@ -54,9 +65,10 @@
       <p>The <span id="shortcut-open"></span> key will open the popup.</p>
       <ul>
         <li><strong>Click an assigned slot</strong> to switch to its tab.</li>
-        <li><strong>Click an empty slot</strong> (or its + button) to assign the active tab.</li>
+        <li><strong>Click an empty slot's + button</strong> to assign the active tab.</li>
         <li><strong>+</strong> assigns the current tab to that slot.</li>
         <li><strong>×</strong> clears that slot.</li>
+        <li><strong>Open Sidebar</strong> with the Sidebar button, a keyboard shortcut, or the toolbar icon's context menu.</li>
         <li><strong>Clear All</strong> removes all slot assignments.</li>
       </ul>
 

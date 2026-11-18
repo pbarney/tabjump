@@ -155,6 +155,13 @@ async function initSidebar() {
     });
   });
 
+  document.getElementById("manage-shortcuts").addEventListener("click", () => {
+    sidebarMessage("open-shortcut-settings").catch(error => {
+      console.error("Could not open shortcut settings:", error);
+      showSidebarStatus("Could not open shortcut settings.");
+    });
+  });
+
   await requestSidebarRefresh();
 }
 

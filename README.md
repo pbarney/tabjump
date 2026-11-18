@@ -18,7 +18,7 @@ TabJump supports **Firefox** and **Chrome/Chromium**. Firefox users can also dis
 
 1. Install TabJump in Firefox, or load the Chrome/Chromium build as an unpacked extension (instructions below).
 2. Open a tab you want to return to and click the **TabJump toolbar button**.
-3. Click an empty slot (or its **+** button), or press **A**, then **1–9**, while the popup is open.
+3. Click an empty slot's **+** button, or press **A**, then **1–9**, while the popup is open.
 4. To return to the assigned tab, open the popup and press its slot number **1–9** (or click anywhere in that slot's main area).
 5. Open **Options** to choose Global or Per-window slots and configure feedback or Firefox/TST integration.
 
@@ -33,7 +33,7 @@ TabJump supports **Firefox** and **Chrome/Chromium**. Firefox users can also dis
 | `H` | Toggle Help/Back |
 | `O` | Open Options |
 
-The shared slot list shows a **+** button for an empty slot and an **×** button for an occupied slot. Click an occupied slot's main area to jump, or an empty slot's main area to assign. Its **Clear All** button clears the global set in Global mode or the **current window's** set in Per-window mode.
+The shared slot list shows a **+** button for an empty slot and an **×** button for an occupied slot. Click an occupied slot's main area to jump; empty slot main areas do nothing, so use **+** to assign. Its **Clear All** button clears the global set in Global mode or the **current window's** set in Per-window mode.
 
 ## Global and Per-window slots
 
@@ -57,6 +57,7 @@ Unlike the popup-local keys above, these commands work without first opening the
 | Action | Windows/default | Linux | macOS |
 | --- | --- | --- | --- |
 | Open TabJump popup | `Alt+J` | `Alt+J` | `MacCtrl+J` |
+| Open TabJump sidebar | `Alt+Shift+J` | `Alt+Shift+J` | `MacCtrl+Shift+J` |
 | Jump to Slot 1–9 | `Alt+1` … `Alt+9` | `Ctrl+1` … `Ctrl+9` | `MacCtrl+1` … `MacCtrl+9` |
 | Assign current tab to Slot 1–9 | `Alt+Shift+1` … `Alt+Shift+9` | `Ctrl+Shift+1` … `Ctrl+Shift+9` | `MacCtrl+Shift+1` … `MacCtrl+Shift+9` |
 | Unassign current tab | `Alt+Shift+0` | `Ctrl+Shift+0` | `MacCtrl+Shift+0` |
@@ -65,7 +66,7 @@ These are *suggested* defaults, but your particular configuration will affect th
 
 ### Chrome/Chromium
 
-The popup-opening command has a suggested shortcut (`Alt+J` on Windows/Linux and `MacCtrl+J` on macOS). Most slot-specific commands must be assigned manually in `chrome://extensions/shortcuts`. You can use the popup-local keyboard workflow even without assigning these browser-wide shortcuts.
+Chromium suggests four shortcuts: **Open Popup** (`Alt+J`), **Open Sidebar** (`Alt+Shift+J`), **Jump to Slot 1** (`Alt+1`), and **Assign Slot 1** (`Alt+Shift+1`). On macOS these use `MacCtrl` instead of `Alt`. The **Unassign Current Tab** command remains available but has no suggested shortcut. Assign other slot shortcuts manually in `chrome://extensions/shortcuts`. The popup's local keyboard workflow works without configuring browser-wide shortcuts. A dismissible shortcut-setup notice appears in the Chromium popup until you open shortcut settings or choose **Don't show again**.
 
 ## Options
 
@@ -113,7 +114,7 @@ configured jump shortcuts (assigned slots) or assign shortcuts (empty slots).
 If a shortcut is not configured, its badge says **No key**. This preference is
 shared between the popup and sidebar and persists across sessions.
 
-version 0.3.0 adds an optional persistent sidebar, bringing a much-needed visual indicator to browsers that don't (or can't) use the Tree Style Tab extension. Open it with **Sidebar** in the toolbar popup. The sidebar shows Global slots (across all windows) or Per-window slots (within the current window) depending on which mode you've selected in the options. It stays visible across tab switches, lets you jump or unassign, and updates when assignments change.
+Version 0.3.0 adds an optional persistent sidebar, bringing a visual indicator to browsers that don't (or can't) use Tree Style Tab. Open it using **Sidebar** in the toolbar popup, `Alt+Shift+J` (or `MacCtrl+Shift+J` on macOS), or **Open TabJump Sidebar** from the toolbar icon's right-click menu. The sidebar's **Shortcuts** button opens the browser's extension shortcut settings. The sidebar shows Global slots (across all windows) or Per-window slots (within the current window) depending on which mode you've selected in the options. It stays visible across tab switches, lets you jump or unassign, and updates when assignments change.
 
 If you use TST in Firefox, you cannot have both the TST side bar and the TabJump sidebar at the same time. You'll have to choose which one you want.
 

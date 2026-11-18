@@ -26,8 +26,11 @@
     <ol id="sidebar-slots" class="slot-list" aria-label="Jump slots"></ol>
   </main>
   <footer class="sidebar-footer">
-    <p>Click a filled slot to jump, or an empty slot to assign.</p>
-    <button id="open-options" type="button">Options</button>
+    <p>Click a filled slot to jump; use + to assign or × to unassign.</p>
+    <div class="sidebar-footer-actions">
+      <button id="manage-shortcuts" type="button">Shortcuts</button>
+      <button id="open-options" type="button">Options</button>
+    </div>
   </footer>
   <p id="sidebar-status" class="status" role="status" aria-live="polite"></p>
   <script src="platform.js"></script>
