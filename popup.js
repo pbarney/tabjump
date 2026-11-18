@@ -190,7 +190,7 @@ async function assignSlotFromPopup(slot) {
   clearShortcutMode();
 
   await send("assign-slot", { slot });
-  setStatus(`Assigned current tab to Slot ${slot}.`);
+  setStatus(`✓ Assigned current tab to <strong>Slot ${slot}</strong>.`);
   await load();
 }
 
@@ -198,7 +198,7 @@ async function unassignSlotFromPopup(slot) {
   clearShortcutMode();
 
   const changed = await send("unassign-slot", { slot });
-  setStatus(changed ? `Slot ${slot} unassigned.` : `Slot ${slot} is already empty.`);
+  setStatus(changed ? `✓ Slot ${slot} unassigned.` : `Slot ${slot} is already empty.`);
   await load();
 }
 
@@ -206,7 +206,7 @@ async function unassignCurrentTabFromPopup() {
   clearShortcutMode();
 
   const changed = await send("unassign-current-tab");
-  setStatus(changed ? "Current tab unassigned." : "Current tab was not assigned.");
+  setStatus(changed ? "✓ Current tab unassigned." : "Current tab was not assigned.");
   await load();
 }
 
@@ -321,7 +321,7 @@ document.addEventListener("click", async (event) => {
     window.close();
   } catch (error) {
     console.error(error);
-    setStatus("Could not open shortcut settings.");
+    setStatus("⚠ Could not open shortcut settings.");
   }
 });
 
@@ -432,8 +432,8 @@ document.getElementById("clear-all").addEventListener("click", async () => {
   clearShortcutMode();
   const result = await send("clear-all-slots", { allWindows: false });
   setStatus(result?.scope === "per-window"
-    ? "Current-window slots cleared."
-    : "All slots cleared."
+    ? "✓ Current-window slots cleared."
+    : "✓ All slots cleared."
   );
   await load();
 });

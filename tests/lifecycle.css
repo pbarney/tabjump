@@ -1,0 +1,25 @@
+:root {
+  --page-max-width: 850px;
+  --page-padding: 24px;
+}
+body { margin-inline: auto; }
+main { line-height: 1.5; }
+.warning {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+#summary { font-weight: 600; }
+#results { list-style: none; padding: 0; }
+#results li {
+  border-bottom: 1px solid var(--border);
+  padding: 7px 0;
+  overflow-wrap: anywhere;
+}
+#results .result-label {
+  display: inline-block;
+  min-width: 6em;
+  font-weight: 600;
+}
+#results pre { margin: 4px 0 0; white-space: pre-wrap; color: var(--muted); }

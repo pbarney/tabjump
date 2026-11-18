@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const toolsDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(toolsDir, "..");
-const distDir = path.join(rootDir, "dist");
+const testBuild = process.argv.includes("--test");
+const distDir = path.join(rootDir, "dist", ...(testBuild ? ["test"] : []));
 
 const targets = {
   firefox: "manifest.json",
@@ -15,7 +16,7 @@ const targets = {
 const sharedFiles = [
   "background.js",
   "platform.js",
-  
+
   "style.css",
   "slot-list.js",
   "slot-list.css",
@@ -34,6 +35,17 @@ const sharedFiles = [
 
   "icons",
 ];
+
+// Never package test code in the standard Firefox/Chromium distributions.
+if (testBuild) {
+  sharedFiles.push(
+    "tests/lifecycle.html",
+    "tests/lifecycle.css",
+    "tests/lifecycle.js",
+    "tests/fixture.html",
+    "tests/fixture.js"
+  );
+}
 
 function removeDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
@@ -83,7 +95,7 @@ function buildTarget(targetName, manifestFile) {
   fs.copyFileSync(manifestPath, outManifestPath);
   validateJson(outManifestPath);
 
-  console.log(`Built ${targetName}: ${path.relative(rootDir, outDir)}`);
+  console.log(`Built ${targetName}${testBuild ? " (test)" : ""}: ${path.relative(rootDir, outDir)}`);
 }
 
 removeDir(distDir);

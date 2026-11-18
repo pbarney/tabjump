@@ -1,5 +1,6 @@
 {
   "scripts": {
-    "build": "node tools/build.mjs"
+    "build": "node tools/build.mjs",
+    "build:test": "node tools/build.mjs --test"
   }
 }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TabJump lifecycle tests</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="lifecycle.css">
+</head>
+<body>
+  <main>
+    <h1>TabJump lifecycle tests</h1>
+    <p>Exercises real browser tabs and windows, comparing TabJump's slot views with independent browser API queries.</p>
+    <p id="environment"></p>
+    <p class="warning"><strong>Use a disposable browser profile.</strong> Tests create and close test windows, change slot scope, and temporarily disable feedback. Existing assignments will prevent the suite from starting. Do not interact with the test windows while tests are running.</p>
+    <label><input type="checkbox" id="confirm"> I am using a disposable test profile.</label>
+    <div class="controls">
+      <button id="run" type="button" disabled>Run lifecycle tests</button>
+      <button id="copy" type="button" disabled>Copy results</button>
+    </div>
+    <p id="summary" role="status" aria-live="polite">Ready.</p>
+    <ol id="results" aria-label="Test results"></ol>
+  </main>
+  <script src="lifecycle.js"></script>
+</body>
+</html>

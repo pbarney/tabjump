@@ -40,6 +40,13 @@
   border-radius: 8px;
 }
 
+.slot-row.empty {
+  opacity: .5;
+}
+.slot-row.empty:hover {
+  opacity: unset;
+}
+
 .slot-row.current {
   border-color: Highlight;
   background: color-mix(in srgb, Highlight 10%, transparent);
